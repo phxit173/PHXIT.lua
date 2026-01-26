@@ -1,5 +1,40 @@
 --[[ PHXIT - PvP Test Script (DELTA EXECUTOR) GG pvp script Script client-side ]]
 
+print("PHXIT carregado")
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "PHXIT_GUI"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+
+local close = Instance.new("TextButton")
+close.Parent = frame
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -35, 0, 5)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+local label = Instance.new("TextLabel")
+label.Parent = frame
+label.Size = UDim2.new(1, -20, 0, 50)
+label.Position = UDim2.new(0, 10, 0, 70)
+label.Text = "PHXIT carregou com sucesso"
+label.TextColor3 = Color3.new(1,1,1)
+label.BackgroundTransparency = 1
+
 -- ================= SERVIÇOS ================= local Players = game:GetService("Players") local RunService = game:GetService("RunService") local UserInputService = game:GetService("UserInputService") local Camera = workspace.CurrentCamera
 
 local LP = Players.LocalPlayer
