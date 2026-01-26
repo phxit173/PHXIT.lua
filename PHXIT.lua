@@ -1,7 +1,7 @@
 --[[ PHXIT - PvP Test Script (DELTA EXECUTOR) GG pvp script Script client-side ]]
 
 -- ===============================
--- PHXIT TRAINING SCRIPT (SAFE)
+-- PHXIT.GG SCRIPT (SAFE)
 -- ===============================
 
 -- Serviços
@@ -40,7 +40,7 @@ Main.Draggable = true
 
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1,0,0,35)
-Title.Text = "PHXIT TRAINING"
+Title.Text = "PHXIT.GG"
 Title.TextColor3 = Color3.new(1,1,1)
 Title.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Title.Font = Enum.Font.GothamBold
