@@ -153,20 +153,23 @@ end)
 -- ESP SIMPLES
 -- ===============================
 RunService.RenderStepped:Connect(function()
-	for _, m in pairs(workspace:GetChildren()) do
-		if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
-			if ESPEnabled then
-				if not m:FindFirstChild("PHXIT_HL") then
-					local hl = Instance.new("Highlight", m)
-					hl.Name = "PHXIT_HL"
-					hl.FillColor = Color3.fromRGB(255,0,0)
-					hl.OutlineColor = Color3.new(1,1,1)
-				end
-			else
-				if m:FindFirstChild("PHXIT_HL") then
-					m.PHXIT_HL:Destroy()
-				end
-			end
-		end
-	end
+    for _, m in pairs(workspace:GetDescendants()) do
+        if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
+            local hrp = m:FindFirstChild("HumanoidRootPart")
+            if ESPEnabled then
+                if not m:FindFirstChild("PHXIT_HL") then
+                    local hl = Instance.new("Highlight", m)
+                    hl.Name = "PHXIT_HL"
+                    hl.FillColor = Color3.fromRGB(255,0,0)
+                    hl.OutlineColor = Color3.new(1,1,1)
+                    hl.OutlineTransparency = 0
+                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                end
+            else
+                if m:FindFirstChild("PHXIT_HL") then
+                    m.PHXIT_HL:Destroy()
+                end
+            end
+        end
+    end
 end)
