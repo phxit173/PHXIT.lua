@@ -156,3 +156,87 @@ end
 MakeToggle("Aimlock", 60, function() return AimlockEnabled end, function(v) AimlockEnabled = v end)
 MakeToggle("Aimbot", 110, function() return AimbotEnabled end, function(v) AimbotEnabled = v end)
 MakeToggle("ESP", 160, function() return ESPEnabled end, function(v) ESPEnabled = v end)
+
+-- ===== AIMBOT / AIMLOCK (TREINO NPC) =====
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+local Smoothness = 0.15 -- aimbot suave
+
+-- Ignorar jogadores
+local function IsNPC(model)
+    if Players:GetPlayerFromCharacter(model) then
+        return false
+    end
+    return model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart")
+end
+
+-- Pega NPC mais próximo do centro da tela
+local function GetClosestNPC()
+    local closest, shortest = nil, math.huge
+    local mousePos = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+
+    for _, m in pairs(workspace:GetChildren()) do
+        if m:IsA("Model") and IsNPC(m) then
+            local hrp = m.HumanoidRootPart
+            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+            if onScreen then
+                local dist = (Vector2.new(pos.X, pos.Y) - mousePos).Magnitude
+                if dist < shortest then
+                    shortest = dist
+                    closest = m
+                end
+            end
+        end
+    end
+    return closest
+end
+
+RunService.RenderStepped:Connect(function()
+    if not AimlockEnabled and not AimbotEnabled then return end
+
+    local target = GetClosestNPC()
+    if not target then return end
+
+    local hrp = target.HumanoidRootPart
+    local newCF = CFrame.new(Camera.CFrame.Position, hrp.Position)
+
+    if AimlockEnabled then
+        Camera.CFrame = newCF
+    elseif AimbotEnabled then
+        Camera.CFrame = Camera.CFrame:Lerp(newCF, Smoothness)
+    end
+end)
+
+-- ===== ESP NPC =====
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "PHXIT_ESP"
+ESPFolder.Parent = workspace
+
+local function ClearESP()
+    ESPFolder:ClearAllChildren()
+end
+
+local function CreateESP(model)
+    local box = Instance.new("BoxHandleAdornment")
+    box.Adornee = model
+    box.Size = model:GetExtentsSize()
+    box.AlwaysOnTop = true
+    box.ZIndex = 10
+    box.Transparency = 0.5
+    box.Color3 = Color3.fromRGB(255, 0, 0)
+    box.Parent = ESPFolder
+end
+
+RunService.RenderStepped:Connect(function()
+    ClearESP()
+    if not ESPEnabled then return end
+
+    for _, m in pairs(workspace:GetChildren()) do
+        if m:IsA("Model") and IsNPC(m) then
+            CreateESP(m)
+        end
+    end
+end)
