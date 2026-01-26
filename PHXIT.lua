@@ -206,26 +206,30 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ===============================
--- ESP SIMPLES
+-- ESP FUNCIONAL (PLAYER)
 -- ===============================
+
+local function ClearESP()
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr.Character and plr.Character:FindFirstChild("PHXIT_ESP") then
+			plr.Character.PHXIT_ESP:Destroy()
+		end
+	end
+end
+
 RunService.RenderStepped:Connect(function()
-    for _, m in pairs(workspace:GetDescendants()) do
-        if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
-            local hrp = m:FindFirstChild("HumanoidRootPart")
-            if ESPEnabled then
-                if not m:FindFirstChild("PHXIT_HL") then
-                    local hl = Instance.new("Highlight", m)
-                    hl.Name = "PHXIT_HL"
-                    hl.FillColor = Color3.fromRGB(255,0,0)
-                    hl.OutlineColor = Color3.new(1,1,1)
-                    hl.OutlineTransparency = 0
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                end
-            else
-                if m:FindFirstChild("PHXIT_HL") then
-                    m.PHXIT_HL:Destroy()
-                end
-            end
-        end
-    end
-end)
+	if not ESPEnabled then
+		ClearESP()
+		return
+	end
+
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= lp and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			if not plr.Character:FindFirstChild("PHXIT_ESP") then
+				local hl = Instance.new("Highlight")
+				hl.Name = "PHXIT_ESP"
+				hl.Adornee = plr.Character
+				hl.FillColor = Color3.fromRGB(255, 0, 0)
+				hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+				hl.FillTransparency = 0.5
+				hl.OutlineTransparency = 0
