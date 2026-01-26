@@ -2,22 +2,22 @@
 
 print("PHXIT carregado")
 
---// PHXIT - TRAINING SCRIPT (NPC ONLY)
+--// PHXIT - NPC TRAINING (AIMBOT + AIMLOCK + ESP)
 
---// SERVIÇOS
+-- SERVIÇOS
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
---// ESTADOS
+-- ESTADOS
 local AimlockEnabled = false
 local AimbotEnabled = false
 local ESPEnabled = false
 local Smoothness = 0.15
 
---// FUNÇÃO NPC MAIS PRÓXIMO DO MOUSE
+-- NPC MAIS PRÓXIMO DO MOUSE
 local function GetClosestNPC()
     local closest, shortest = nil, math.huge
     local mouse = LocalPlayer:GetMouse()
@@ -40,7 +40,7 @@ local function GetClosestNPC()
     return closest
 end
 
---// AIMBOT / AIMLOCK
+-- AIMBOT / AIMLOCK
 RunService.RenderStepped:Connect(function()
     local target = GetClosestNPC()
     if not target then return end
@@ -56,7 +56,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---// ESP NPC
+-- ESP
 local ESPFolder = Instance.new("Folder", workspace)
 ESPFolder.Name = "PHXIT_ESP"
 
@@ -83,13 +83,13 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---// GUI
+-- GUI
 local gui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
 gui.Name = "PHXIT_GUI"
 gui.ResetOnSpawn = false
 
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0,260,0,230)
+main.Size = UDim2.new(0,260,0,260)
 main.Position = UDim2.new(0.1,0,0.3,0)
 main.BackgroundColor3 = Color3.fromRGB(20,20,20)
 main.BorderSizePixel = 0
@@ -97,11 +97,12 @@ main.Active = true
 
 -- TOPO
 local top = Instance.new("Frame", main)
-top.Size = UDim2.new(1,0,0,35)
+top.Size = UDim2.new(1,0,0,40)
 top.BackgroundColor3 = Color3.fromRGB(30,30,30)
+top.Active = true
 
 local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1,-80,1,0)
+title.Size = UDim2.new(1,-90,1,0)
 title.Position = UDim2.new(0,10,0,0)
 title.Text = "PHXIT - Training"
 title.BackgroundTransparency = 1
@@ -111,32 +112,33 @@ title.TextSize = 14
 title.TextXAlignment = Left
 
 local close = Instance.new("TextButton", top)
-close.Size = UDim2.new(0,30,0,30)
-close.Position = UDim2.new(1,-35,0,2)
+close.Size = UDim2.new(0,32,0,32)
+close.Position = UDim2.new(1,-36,0,4)
 close.Text = "X"
 close.BackgroundColor3 = Color3.fromRGB(160,50,50)
 close.TextColor3 = Color3.new(1,1,1)
 
 local hide = Instance.new("TextButton", top)
-hide.Size = UDim2.new(0,30,0,30)
-hide.Position = UDim2.new(1,-70,0,2)
+hide.Size = UDim2.new(0,32,0,32)
+hide.Position = UDim2.new(1,-72,0,4)
 hide.Text = "-"
-hide.BackgroundColor3 = Color3.fromRGB(60,60,60)
+hide.BackgroundColor3 = Color3.fromRGB(70,70,70)
 hide.TextColor3 = Color3.new(1,1,1)
 
--- BOTÃO REABRIR
+-- REABRIR
 local reopen = Instance.new("TextButton", gui)
-reopen.Size = UDim2.new(0,70,0,30)
+reopen.Size = UDim2.new(0,70,0,32)
 reopen.Position = UDim2.new(0,10,0.5,0)
 reopen.Text = "PHXIT"
 reopen.Visible = false
 reopen.BackgroundColor3 = Color3.fromRGB(25,25,25)
 reopen.TextColor3 = Color3.new(1,1,1)
+reopen.Active = true
 
--- FUNÇÃO BOTÃO ON/OFF
+-- BOTÃO ON/OFF
 local function MakeToggle(text, y, getter, setter)
     local btn = Instance.new("TextButton", main)
-    btn.Size = UDim2.new(1,-20,0,34)
+    btn.Size = UDim2.new(1,-20,0,36)
     btn.Position = UDim2.new(0,10,0,y)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 13
@@ -148,7 +150,7 @@ local function MakeToggle(text, y, getter, setter)
             btn.BackgroundColor3 = Color3.fromRGB(40,150,40)
         else
             btn.Text = text..": OFF"
-            btn.BackgroundColor3 = Color3.fromRGB(120,40,40)
+            btn.BackgroundColor3 = Color3.fromRGB(130,40,40)
         end
     end
 
@@ -160,21 +162,9 @@ local function MakeToggle(text, y, getter, setter)
     Update()
 end
 
--- BOTÕES
-MakeToggle("Aimlock", 50,
-    function() return AimlockEnabled end,
-    function(v) AimlockEnabled = v end
-)
-
-MakeToggle("Aimbot", 95,
-    function() return AimbotEnabled end,
-    function(v) AimbotEnabled = v end
-)
-
-MakeToggle("ESP", 140,
-    function() return ESPEnabled end,
-    function(v) ESPEnabled = v end
-)
+MakeToggle("Aimlock", 60, function() return AimlockEnabled end, function(v) AimlockEnabled = v end)
+MakeToggle("Aimbot", 110, function() return AimbotEnabled end, function(v) AimbotEnabled = v end)
+MakeToggle("ESP", 160, function() return ESPEnabled end, function(v) ESPEnabled = v end)
 
 -- OCULTAR / FECHAR
 hide.MouseButton1Click:Connect(function()
