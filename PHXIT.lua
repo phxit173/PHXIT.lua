@@ -122,3 +122,37 @@ UserInputService.InputChanged:Connect(function(input)
         )
     end
 end)
+
+-- Estados
+local AimlockEnabled = false
+local AimbotEnabled = false
+local ESPEnabled = false
+
+-- Função helper para criar botão ON/OFF
+local function MakeToggle(text, y, getter, setter)
+    local btn = Instance.new("TextButton", main)
+    btn.Size = UDim2.new(1,-20,0,36)
+    btn.Position = UDim2.new(0,10,0,y)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 13
+    btn.TextColor3 = Color3.new(1,1,1)
+    local function Update()
+        if getter() then
+            btn.Text = text..": ON"
+            btn.BackgroundColor3 = Color3.fromRGB(40,150,40)
+        else
+            btn.Text = text..": OFF"
+            btn.BackgroundColor3 = Color3.fromRGB(130,40,40)
+        end
+    end
+    btn.MouseButton1Click:Connect(function()
+        setter(not getter())
+        Update()
+    end)
+    Update()
+end
+
+-- Criar botões
+MakeToggle("Aimlock", 60, function() return AimlockEnabled end, function(v) AimlockEnabled = v end)
+MakeToggle("Aimbot", 110, function() return AimbotEnabled end, function(v) AimbotEnabled = v end)
+MakeToggle("ESP", 160, function() return ESPEnabled end, function(v) ESPEnabled = v end)
