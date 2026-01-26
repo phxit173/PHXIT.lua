@@ -1,6 +1,16 @@
 --[[ PHXIT - PvP Test Script (DELTA EXECUTOR) GG pvp script Script client-side ]]
 
 local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+-- ESPERA O PLAYERGUI EXISTIR
+local playerGui
+repeat
+    playerGui = lp:FindFirstChild("PlayerGui")
+    task.wait()
+until playerGui
+
+local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local lp = Players.LocalPlayer
 
