@@ -149,6 +149,62 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
+local function HasLineOfSight(targetPart)
+	if not targetPart then return false end
+
+	local origin = Camera.CFrame.Position
+	local direction = (targetPart.Position - origin)
+
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	params.FilterDescendantsInstances = {lp.Character}
+	params.IgnoreWater = true
+
+	local result = workspace:Raycast(origin, direction, params)
+
+	if result then
+		-- Se o que o ray acertou NÃO for parte do alvo, tem parede
+		if not result.Instance:IsDescendantOf(targetPart.Parent) then
+			return false
+		end
+	end
+
+	return true
+end
+
+if HasLineOfSight(target.HumanoidRootPart) then
+	-- pode mirar
+else
+	-- ignora esse alvo
+end
+
+-- Simple Camera Assist (SAFE)
+-- Serve pra estabilizar a mira (sem travar em alvo)
+
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+local enabled = false
+local smoothness = 0.15 -- quanto menor, mais suave
+
+local currentCF = Camera.CFrame
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		enabled = not enabled
+		warn("Camera Assist:", enabled)
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if not enabled then return end
+	
+	currentCF = currentCF:Lerp(Camera.CFrame, smoothness)
+	Camera.CFrame = currentCF
+end)
+
 -- ===============================
 -- ESP SIMPLES
 -- ===============================
