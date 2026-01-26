@@ -176,19 +176,20 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ===============================
--- ESP FUNCIONAL
+-- ESP FUNCIONAL (ATRAVÉS DA PAREDE)
 -- ===============================
 RunService.RenderStepped:Connect(function()
 	for _, plr in pairs(Players:GetPlayers()) do
 		if plr ~= lp and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			if ESPEnabled and HasLineOfSight(plr.Character.HumanoidRootPart) then
+			if ESPEnabled then
 				if not plr.Character:FindFirstChild("PHXIT_ESP") then
 					local hl = Instance.new("Highlight")
 					hl.Name = "PHXIT_ESP"
 					hl.Adornee = plr.Character
-					hl.FillColor = Color3.fromRGB(255,0,0)
-					hl.OutlineColor = Color3.new(1,1,1)
-					hl.FillTransparency = 0.5
+					hl.FillColor = Color3.fromRGB(255, 0, 0)
+					hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+					hl.FillTransparency = 0.4
+					hl.OutlineTransparency = 0
 					hl.Parent = plr.Character
 				end
 			else
