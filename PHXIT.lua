@@ -5,6 +5,23 @@ print("PHXIT carregado")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+-- PHXIT TEST GUI
+print("PHXIT carregado")
+
+-- remove duplicata
+if game.CoreGui:FindFirstChild("PHXIT_GUI") then
+    game.CoreGui.PHXIT_GUI:Destroy()
+end
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- flags de teste
+local AimBot = false
+local AimLock = false
+local ESP = false
+
+-- GUI
 local gui = Instance.new("ScreenGui")
 gui.Name = "PHXIT_GUI"
 gui.ResetOnSpawn = false
@@ -12,28 +29,78 @@ gui.Parent = game.CoreGui
 
 local frame = Instance.new("Frame")
 frame.Parent = gui
-frame.Size = UDim2.new(0, 300, 0, 200)
-frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Size = UDim2.new(0, 320, 0, 260)
+frame.Position = UDim2.new(0.5, -160, 0.5, -130)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.BorderSizePixel = 0
 
-local close = Instance.new("TextButton")
-close.Parent = frame
+-- título
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "PHXIT – Test Panel"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+
+-- botão fechar
+local close = Instance.new("TextButton", frame)
 close.Size = UDim2.new(0, 30, 0, 30)
 close.Position = UDim2.new(1, -35, 0, 5)
 close.Text = "X"
-close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
 
 close.MouseButton1Click:Connect(function()
-	gui:Destroy()
+    frame:Destroy()
 end)
 
-local label = Instance.new("TextLabel")
-label.Parent = frame
-label.Size = UDim2.new(1, -20, 0, 50)
-label.Position = UDim2.new(0, 10, 0, 70)
-label.Text = "PHXIT carregou com sucesso"
-label.TextColor3 = Color3.new(1,1,1)
-label.BackgroundTransparency = 1
+-- botão ocultar
+local hide = Instance.new("TextButton", frame)
+hide.Size = UDim2.new(0, 30, 0, 30)
+hide.Position = UDim2.new(1, -70, 0, 5)
+hide.Text = "-"
+hide.BackgroundColor3 = Color3.fromRGB(70,70,70)
+hide.TextColor3 = Color3.new(1,1,1)
+
+hide.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible
+end)
+
+-- função criar botão toggle
+local function createToggle(text, posY, callback)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0, 260, 0, 40)
+    btn.Position = UDim2.new(0, 30, 0, posY)
+    btn.Text = text .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.Text = text .. ": " .. (state and "ON" or "OFF")
+        callback(state)
+    end)
+end
+
+-- botões de TESTE
+createToggle("Fake Aimbot", 70, function(v)
+    AimBot = v
+    print("Fake Aimbot:", v)
+end)
+
+createToggle("Fake AimLock", 120, function(v)
+    AimLock = v
+    print("Fake AimLock:", v)
+end)
+
+createToggle("Fake ESP", 170, function(v)
+    ESP = v
+    print("Fake ESP:", v)
+end)
 
 -- ================= SERVIÇOS ================= local Players = game:GetService("Players") local RunService = game:GetService("RunService") local UserInputService = game:GetService("UserInputService") local Camera = workspace.CurrentCamera
 
