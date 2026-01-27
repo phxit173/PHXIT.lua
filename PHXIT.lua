@@ -234,3 +234,114 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+
+-- ===============================
+-- PHXIT | SISTEMA DE KEY + GUI
+-- ===============================
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local lp = Players.LocalPlayer
+local pg = lp:WaitForChild("PlayerGui")
+
+-- CONFIG
+local VALID_KEY = "PH.DS25567"
+local DISCORD_LINK = "https://discord.gg/xE3xxzAcH3"
+
+-- LIMPA GUI ANTIGA
+if pg:FindFirstChild("PHXIT_KEY_GUI") then
+    pg.PHXIT_KEY_GUI:Destroy()
+end
+
+-- ===============================
+-- SCREEN GUI
+-- ===============================
+local ScreenGui = Instance.new("ScreenGui", pg)
+ScreenGui.Name = "PHXIT_KEY_GUI"
+ScreenGui.ResetOnSpawn = false
+
+-- ===============================
+-- FRAME PRINCIPAL
+-- ===============================
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.fromOffset(0,0)
+Main.Position = UDim2.fromScale(0.35,0.3)
+Main.BackgroundColor3 = Color3.fromRGB(18,18,18)
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.Active = true
+Main.Draggable = true
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,18)
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Thickness = 2
+Stroke.Color = Color3.fromRGB(255,0,0)
+Stroke.Transparency = 0.6
+
+-- ANIMAÇÃO DE ABERTURA
+TweenService:Create(
+    Main,
+    TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    {Size = UDim2.fromOffset(320,260)}
+):Play()
+
+-- ===============================
+-- TÍTULO
+-- ===============================
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1,0,0,40)
+Title.Text = "PHXIT"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 24
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundTransparency = 1
+
+local Sub = Instance.new("TextLabel", Main)
+Sub.Position = UDim2.fromOffset(0,40)
+Sub.Size = UDim2.new(1,0,0,20)
+Sub.Text = "Pegue a key no Discord"
+Sub.Font = Enum.Font.Gotham
+Sub.TextSize = 12
+Sub.TextColor3 = Color3.fromRGB(170,170,170)
+Sub.BackgroundTransparency = 1
+
+-- ===============================
+-- INPUT KEY
+-- ===============================
+local KeyBox = Instance.new("TextBox", Main)
+KeyBox.Position = UDim2.fromOffset(30,90)
+KeyBox.Size = UDim2.fromOffset(260,40)
+KeyBox.PlaceholderText = "Digite a KEY"
+KeyBox.Text = ""
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.TextSize = 14
+KeyBox.TextColor3 = Color3.new(1,1,1)
+KeyBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
+
+Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0,12)
+
+-- ===============================
+-- BOTÃO CONFIRMAR
+-- ===============================
+local Confirm = Instance.new("TextButton", Main)
+Confirm.Position = UDim2.fromOffset(30,140)
+Confirm.Size = UDim2.fromOffset(260,40)
+Confirm.Text = "CONFIRMAR KEY"
+Confirm.Font = Enum.Font.GothamBold
+Confirm.TextSize = 14
+Confirm.TextColor3 = Color3.new(1,1,1)
+Confirm.BackgroundColor3 = Color3.fromRGB(180,50,50)
+
+Instance.new("UICorner", Confirm).CornerRadius = UDim.new(0,12)
+
+-- ===============================
+-- BOTÃO DISCORD
+-- ===============================
+local Discord = Instance.new("TextButton", Main)
+Discord.Position = UDim2.fromOffset(30,190)
+Discord.Size = UDim2.fromOffset(260,35)
+Discord.Text = "ENTRAR NO DISCORD"
+Discord.Font = Enum.Font.Gotham
+Discord.TextSize = 13
+Discord.TextColor3 = Color3.fromRGB(255,0,0)
