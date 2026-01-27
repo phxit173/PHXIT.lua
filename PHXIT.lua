@@ -163,35 +163,159 @@ local function StartPHXIT()
 	Toggle("AIMLOCK", 140, function(v) AimlockEnabled = v end)
 	Toggle("ESP", 200, function(v) ESPEnabled = v end)
 
+--[[ AIM TRAINING - ULTRA VERSION
+     NPC / DUMMY ONLY
+     Aimlock HARD + Aimbot Smart + ESP Wall
+]]
+
 -- ===============================
--- AIMBOT / AIMLOCK (TOP TIER)
+-- SERVIÇOS
 -- ===============================
-RunService.RenderStepped:Connect(function()
-    if not AimbotEnabled and not AimlockEnabled then return end
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
 
-    local target, dist = GetClosestPlayerFOV()
-    if not target then return end
+local lp = Players.LocalPlayer
 
-    local velocity = target.AssemblyLinearVelocity * Prediction
-    local predictedPos = target.Position + velocity
+-- ===============================
+-- CONFIG
+-- ===============================
+local SETTINGS = {
+	AIMLOCK_KEY = Enum.KeyCode.Q,
+	AIMBOT_KEY  = Enum.KeyCode.E,
+	ESP_KEY     = Enum.KeyCode.R,
 
-    local camPos = Camera.CFrame.Position
-    local targetCF = CFrame.new(camPos, predictedPos)
+	FOV = 250,
+	AIMBOT_SMOOTH = 0.18,
+	PREDICTION = 0.13
+}
 
-    -- 🔒 AIMLOCK REAL (prioridade máxima)
-    if AimlockEnabled then
-        Camera.CFrame = targetCF
-        return
-    end
+-- ===============================
+-- ESTADOS
+-- ===============================
+local Aimlock = false
+local Aimbot = false
+local ESP = true
 
-    -- 🎯 AIMBOT FORTE E LIMPO
-    if AimbotEnabled then
-        if dist < Deadzone then return end
-        Camera.CFrame = Camera.CFrame:Lerp(targetCF, AimbotSmoothness)
-    end
-end)
+-- ===============================
+-- NPC DETECTION
+-- ===============================
+local function GetNPCs()
+	local t = {}
+	for _,m in ipairs(workspace:GetChildren()) do
+		if m:IsA("Model")
+		and m:FindFirstChild("Humanoid")
+		and m:FindFirstChild("HumanoidRootPart")
+		and not Players:GetPlayerFromCharacter(m) then
+			table.insert(t, m)
+		end
+	end
+	return t
 end
 
+-- ===============================
+-- WALL CHECK (RAYCAST REAL)
+-- ===============================
+local function Visible(part)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	params.FilterDescendantsInstances = {lp.Character}
+
+	local origin = Camera.CFrame.Position
+	local dir = part.Position - origin
+
+	local ray = workspace:Raycast(origin, dir, params)
+	if ray then
+		return ray.Instance:IsDescendantOf(part.Parent)
+	end
+	return true
+end
+
+-- ===============================
+-- TARGET SYSTEM
+-- ===============================
+local function GetTarget()
+	local closest, shortest = nil, math.huge
+	local mouse = UserInputService:GetMouseLocation()
+
+	for _,npc in ipairs(GetNPCs()) do
+		if npc.Humanoid.Health > 0 then
+			local hrp = npc.HumanoidRootPart
+			if Visible(hrp) then
+				local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+				if onScreen then
+					local dist = (Vector2.new(pos.X,pos.Y) - mouse).Magnitude
+					if dist < SETTINGS.FOV and dist < shortest then
+						shortest = dist
+						closest = hrp
+					end
+				end
+			end
+		end
+	end
+	return closest
+end
+
+-- ===============================
+-- ESP WALL
+-- ===============================
+RunService.RenderStepped:Connect(function()
+	if not ESP then return end
+
+	for _,npc in ipairs(GetNPCs()) do
+		if not npc:FindFirstChild("ULTRA_ESP") then
+			local h = Instance.new("Highlight")
+			h.Name = "ULTRA_ESP"
+			h.Adornee = npc
+			h.FillColor = Color3.fromRGB(255,50,50)
+			h.OutlineColor = Color3.fromRGB(255,255,255)
+			h.FillTransparency = 0.35
+			h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			h.Parent = npc
+		end
+	end
+end)
+
+-- ===============================
+-- AIM SYSTEM
+-- ===============================
+RunService.RenderStepped:Connect(function()
+	if not Aimlock and not Aimbot then return end
+
+	local target = GetTarget()
+	if not target then return end
+
+	local vel = target.AssemblyLinearVelocity * SETTINGS.PREDICTION
+	local predicted = target.Position + vel
+
+	local camPos = Camera.CFrame.Position
+	local cf = CFrame.new(camPos, predicted)
+
+	if Aimlock then
+		Camera.CFrame = cf
+		return
+	end
+
+	if Aimbot then
+		Camera.CFrame = Camera.CFrame:Lerp(cf, SETTINGS.AIMBOT_SMOOTH)
+	end
+end)
+
+-- ===============================
+-- INPUT
+-- ===============================
+UserInputService.InputBegan:Connect(function(i,gp)
+	if gp then return end
+
+	if i.KeyCode == SETTINGS.AIMLOCK_KEY then
+		Aimlock = not Aimlock
+	elseif i.KeyCode == SETTINGS.AIMBOT_KEY then
+		Aimbot = not Aimbot
+	elseif i.KeyCode == SETTINGS.ESP_KEY then
+		ESP = not ESP
+	end
+end)
 -- ===============================
 -- CONFIRMAR KEY
 -- ===============================
