@@ -321,3 +321,33 @@ Confirm.MouseButton1Click:Connect(function()
         Confirm.Text="CONFIRMAR KEY"
     end
 end)
+
+-- Botão ocultar (FIX MOBILE)
+Min.MouseButton1Click:Connect(function()
+    TweenService:Create(
+        Main,
+        TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        {Size = UDim2.fromOffset(0, 0)}
+    ):Play()
+
+    task.wait(0.25)
+    Main.Visible = false
+    OpenBtn.Visible = true
+end)
+
+-- Botão PH para reabrir (ARRASTÁVEL)
+OpenBtn.Visible = false
+OpenBtn.Active = true
+OpenBtn.Draggable = true
+OpenBtn.AutoButtonColor = true
+
+OpenBtn.MouseButton1Click:Connect(function()
+    Main.Visible = true
+    TweenService:Create(
+        Main,
+        TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Size = UDim2.fromOffset(300, 280)}
+    ):Play()
+
+    OpenBtn.Visible = false
+end)
