@@ -1,7 +1,7 @@
 --[[ PHXIT - PvP Test Script (DELTA EXECUTOR) GG pvp script Script client-side ]]
 
 -- ===============================
--- PHXIT.GG SCRIPT (CLEAN)
+-- PHXIT TRAINING SCRIPT (FULL)
 -- ===============================
 
 -- Serviços
@@ -16,8 +16,12 @@ local AimbotEnabled = false
 local AimlockEnabled = false
 local ESPEnabled = false
 
-local AimbotSmoothness = 0.18 -- aimbot suave
-local AimlockSmoothness = 1 -- aimlock travado
+-- Ajustes (UPGRADE)
+local AimbotSmoothness = 0.18     -- suavidade do aimbot
+local AimlockSmoothness = 1       -- travado real
+local AimbotFOV = 180             -- raio de FOV (pixels)
+local Deadzone = 6                -- zona morta (remove tremedeira)
+local Prediction = 0.12           -- predição leve
 
 -- Limpa GUI antiga
 local pg = lp:WaitForChild("PlayerGui")
@@ -42,7 +46,7 @@ Main.Draggable = true
 
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1,0,0,35)
-Title.Text = "PHXIT.GG"
+Title.Text = "PHXIT TRAINING"
 Title.TextColor3 = Color3.new(1,1,1)
 Title.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Title.Font = Enum.Font.GothamBold
@@ -116,7 +120,7 @@ Toggle("ESP", 140, function(v) ESPEnabled = v end)
 -- FUNÇÕES
 -- ===============================
 
--- Checagem de parede
+-- Checagem de parede (usada SÓ na mira)
 local function HasLineOfSight(part)
 	local origin = Camera.CFrame.Position
 	local direction = (part.Position - origin)
@@ -132,8 +136,8 @@ local function HasLineOfSight(part)
 	return true
 end
 
--- Alvo mais próximo (PLAYERS)
-local function GetClosestPlayer()
+-- Alvo mais próximo dentro do FOV (PLAYERS)
+local function GetClosestPlayerFOV()
 	local closest, dist = nil, math.huge
 	local mousePos = UserInputService:GetMouseLocation()
 
@@ -145,8 +149,9 @@ local function GetClosestPlayer()
 				if HasLineOfSight(hrp) then
 					local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 					if onScreen then
-						local mag = (Vector2.new(pos.X,pos.Y) - mousePos).Magnitude
-						if mag < dist then
+						local diff = Vector2.new(pos.X,pos.Y) - mousePos
+						local mag = diff.Magnitude
+						if mag < AimbotFOV and mag < dist then
 							dist = mag
 							closest = hrp
 						end
@@ -155,18 +160,25 @@ local function GetClosestPlayer()
 			end
 		end
 	end
-	return closest
+	return closest, dist
 end
 
 -- ===============================
--- AIMBOT / AIMLOCK
+-- AIMBOT / AIMLOCK (UPGRADED)
 -- ===============================
 RunService.RenderStepped:Connect(function()
-	local target = GetClosestPlayer()
+	local target, dist = GetClosestPlayerFOV()
 	if not target then return end
 
+	-- Deadzone evita tremedeira
+	if dist < Deadzone then return end
+
+	-- Predição leve
+	local velocity = target.AssemblyLinearVelocity * Prediction
+	local predictedPos = target.Position + velocity
+
 	local camPos = Camera.CFrame.Position
-	local cf = CFrame.new(camPos, target.Position)
+	local cf = CFrame.new(camPos, predictedPos)
 
 	if AimlockEnabled then
 		Camera.CFrame = cf -- travado real
@@ -176,7 +188,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ===============================
--- ESP FUNCIONAL (ATRAVÉS DA PAREDE)
+-- ESP (ATRAVÉS DA PAREDE)
 -- ===============================
 RunService.RenderStepped:Connect(function()
 	for _, plr in pairs(Players:GetPlayers()) do
@@ -186,8 +198,8 @@ RunService.RenderStepped:Connect(function()
 					local hl = Instance.new("Highlight")
 					hl.Name = "PHXIT_ESP"
 					hl.Adornee = plr.Character
-					hl.FillColor = Color3.fromRGB(255, 0, 0)
-					hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+					hl.FillColor = Color3.fromRGB(255,0,0)
+					hl.OutlineColor = Color3.fromRGB(255,255,255)
 					hl.FillTransparency = 0.4
 					hl.OutlineTransparency = 0
 					hl.Parent = plr.Character
