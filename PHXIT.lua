@@ -350,4 +350,94 @@ OpenBtn.MouseButton1Click:Connect(function()
     ):Play()
 
     OpenBtn.Visible = false
-end)
+end)--[[ PHXIT - GUI + KEY SYSTEM + ESP (SAFE VERSION) ]]
+
+-- ===============================
+-- SERVIÇOS
+-- ===============================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local lp = Players.LocalPlayer
+local pg = lp:WaitForChild("PlayerGui")
+
+-- ===============================
+-- CONFIG
+-- ===============================
+local VALID_KEY = "PH.DS25567"
+local DISCORD_LINK = "https://discord.gg/xE3xxzAcH3"
+
+-- ===============================
+-- LIMPA GUIs ANTIGAS
+-- ===============================
+for _,v in ipairs(pg:GetChildren()) do
+	if v.Name == "PHXIT_GUI" or v.Name == "PHXIT_KEY_GUI" then
+		v:Destroy()
+	end
+end
+
+-- ===============================
+-- KEY GUI
+-- ===============================
+local KeyGui = Instance.new("ScreenGui", pg)
+KeyGui.Name = "PHXIT_KEY_GUI"
+KeyGui.ResetOnSpawn = false
+
+local KeyFrame = Instance.new("Frame", KeyGui)
+KeyFrame.Size = UDim2.fromOffset(0,0)
+KeyFrame.Position = UDim2.fromScale(0.35,0.3)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(18,18,18)
+KeyFrame.BorderSizePixel = 0
+KeyFrame.Active = true
+KeyFrame.Draggable = true
+KeyFrame.ClipsDescendants = true
+Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0,18)
+
+local Stroke = Instance.new("UIStroke", KeyFrame)
+Stroke.Thickness = 2
+Stroke.Color = Color3.fromRGB(255,0,0)
+Stroke.Transparency = 0.6
+
+TweenService:Create(
+	KeyFrame,
+	TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	{Size = UDim2.fromOffset(320,260)}
+):Play()
+
+local Title = Instance.new("TextLabel", KeyFrame)
+Title.Size = UDim2.new(1,0,0,40)
+Title.Text = "PHXIT"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 24
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundTransparency = 1
+
+local Sub = Instance.new("TextLabel", KeyFrame)
+Sub.Position = UDim2.fromOffset(0,40)
+Sub.Size = UDim2.new(1,0,0,20)
+Sub.Text = "Pegue a key no Discord"
+Sub.Font = Enum.Font.Gotham
+Sub.TextSize = 12
+Sub.TextColor3 = Color3.fromRGB(170,170,170)
+Sub.BackgroundTransparency = 1
+
+local KeyBox = Instance.new("TextBox", KeyFrame)
+KeyBox.Position = UDim2.fromOffset(30,90)
+KeyBox.Size = UDim2.fromOffset(260,40)
+KeyBox.PlaceholderText = "Digite a KEY"
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.TextSize = 14
+KeyBox.TextColor3 = Color3.new(1,1,1)
+KeyBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0,12)
+
+local Confirm = Instance.new("TextButton", KeyFrame)
+Confirm.Position = UDim2.fromOffset(30,140)
+Confirm.Size = UDim2.fromOffset(260,40)
+Confirm.Text = "CONFIRMAR KEY"
+Confirm.Font = Enum.Font.GothamBold
+Confirm.TextSize = 14
+Confirm.TextColor3 = Color3.new(1,1,1)
+Confirm.BackgroundColor3 = Color3.fromRGB(180,50,50
