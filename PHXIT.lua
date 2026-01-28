@@ -300,24 +300,66 @@ ESPBtn.MouseButton1Click:Connect(function()
 	RefreshESP()
 end)
 
-FOVBtn.MouseButton1Click:Connect(function()
-	local input = Box.Text:gsub("%s+","")
-	local newFOV = tonumber(input)
-	if newFOV and newFOV > 0 and newFOV <= 1000 then
-		FOVInput = newFOV
-		FOVBtn.Text = "FOV: "..FOVInput
-	else
-		FOVBtn.Text = "FOV INVÁLIDO"
-		task.wait(1)
+-- ===============================
+-- BOTÕES DE AJUSTE DE FOV
+-- ===============================
+local function CreateFOVButton(text, x, y, callback)
+	local btn = Instance.new("TextButton", Main)
+	btn.Size = UDim2.fromOffset(50,30)
+	btn.Position = UDim2.fromOffset(x, y)
+	btn.Text = text
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 13
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	Instance.new("UICorner", btn)
+	btn.MouseButton1Click:Connect(callback)
+	return btn
+end
+
+local FOVMinus = CreateFOVButton("-", 20, 250, function()
+	if FOVInput > 10 then
+		FOVInput = FOVInput - 10
 		FOVBtn.Text = "FOV: "..FOVInput
 	end
 end)
+
+local FOVPlus = CreateFOVButton("+", 90, 250, function()
+	if FOVInput < 1000 then
+		FOVInput = FOVInput + 10
+		FOVBtn.Text = "FOV: "..FOVInput
+	end
+end)
+
+FOVBtn.Text = "FOV: "..FOVInput
+
+-- ===============================
+-- FOV CIRCLE VISUAL
+-- ===============================
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Visible = false
+FOVCircle.Color = Color3.fromRGB(255,255,255)
+FOVCircle.Transparency = 0.3
+FOVCircle.Thickness = 2
+FOVCircle.NumSides = 100
+FOVCircle.Filled = false
 
 -- ===============================
 -- LOOP PRINCIPAL
 -- ===============================
 RunService.RenderStepped:Connect(function()
 	if not ScriptLiberado then return end
+
+	-- Atualiza círculo do FOV
+	if Aimbot or AimLock then
+		FOVCircle.Visible = true
+		local centerX = Camera.ViewportSize.X/2
+		local centerY = Camera.ViewportSize.Y/2
+		FOVCircle.Position = Vector2.new(centerX, centerY)
+		FOVCircle.Radius = FOVInput
+	else
+		FOVCircle.Visible = false
+	end
 
 	-- AIMBOT
 	if Aimbot then
