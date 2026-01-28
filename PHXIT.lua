@@ -7,7 +7,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Camera = workspace.CurrentCamera
-
 local lp = Players.LocalPlayer
 
 -- ===============================
@@ -26,7 +25,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = lp:WaitForChild("PlayerGui")
 
 -- ===============================
--- RGB BORDA
+-- FUNÇÃO RGB BORDA
 -- ===============================
 local function RGBStroke(ui)
 	local stroke = Instance.new("UIStroke", ui)
@@ -42,30 +41,24 @@ local function RGBStroke(ui)
 end
 
 -- ===============================
--- DRAG (PC + MOBILE)
+-- FUNÇÃO DRAG
 -- ===============================
 local function MakeDraggable(frame)
 	local dragging, dragStart, startPos
-
 	frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = frame.Position
 		end
 	end)
-
 	frame.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = false
 		end
 	end)
-
 	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-		or input.UserInputType == Enum.UserInputType.Touch) then
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			local delta = input.Position - dragStart
 			frame.Position = UDim2.new(
 				startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -102,7 +95,6 @@ Confirm.BackgroundColor3 = Color3.fromRGB(180,50,50)
 Confirm.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", Confirm)
 
--- 🔥 DISCORD AGORA NA TELA DA KEY
 local DiscordBtn = Instance.new("TextButton", KeyFrame)
 DiscordBtn.Size = UDim2.fromOffset(240,30)
 DiscordBtn.Position = UDim2.fromOffset(30,160)
@@ -128,7 +120,7 @@ end)
 -- GUI PRINCIPAL
 -- ===============================
 local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.fromOffset(300,220)
+Main.Size = UDim2.fromOffset(300,260)
 Main.Position = UDim2.fromScale(0.05,0.35)
 Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Main.Visible = false
@@ -136,15 +128,16 @@ Instance.new("UICorner", Main)
 RGBStroke(Main)
 MakeDraggable(Main)
 
+-- BOTÃO OCULTAR
 local Hide = Instance.new("TextButton", Main)
 Hide.Size = UDim2.fromOffset(30,30)
-Hide.Position = UDim2.fromOffset(225,5)
+Hide.Position = UDim2.fromOffset(260,5)
 Hide.Text = "-"
 Hide.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Instance.new("UICorner", Hide)
 
 -- ===============================
--- MINI PH (DRAG FUNCIONANDO)
+-- MINI PH
 -- ===============================
 local Mini = Instance.new("Frame", ScreenGui)
 Mini.Size = UDim2.fromOffset(60,60)
@@ -153,7 +146,7 @@ Mini.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Mini.Visible = false
 Instance.new("UICorner", Mini)
 RGBStroke(Mini)
-MakeDraggable(Mini) -- 🔥 AGORA FUNCIONA DE VERDADE
+MakeDraggable(Mini)
 
 local PH = Instance.new("TextButton", Mini)
 PH.Size = UDim2.new(1,0,1,0)
@@ -163,45 +156,35 @@ PH.TextColor3 = Color3.new(1,1,1)
 PH.Font = Enum.Font.GothamBold
 
 -- ===============================
--- ESTADOS
+-- CHEAT ESTADOS
 -- ===============================
 local Aimbot = false
 local AimLock = false
 local ESP = false
 local FOV = 180
 local Smoothness = 0.12
+local LockedTarget
 
 -- ===============================
--- TEAM CHECK ULTRA
+-- FUNÇÕES CHEAT
 -- ===============================
 local function IsValidEnemy(plr)
 	if plr == lp then return false end
 	if not plr.Character then return false end
-
 	local hum = plr.Character:FindFirstChildOfClass("Humanoid")
 	if not hum or hum.Health <= 0 then return false end
 	if plr.Character:FindFirstChildOfClass("ForceField") then return false end
-
 	if lp.Team and plr.Team and lp.Team == plr.Team then return false end
 	return true
 end
 
--- ===============================
--- WALL CHECK
--- ===============================
 local function HasWall(origin, targetPos, char)
 	local params = RaycastParams.new()
 	params.FilterDescendantsInstances = {lp.Character}
 	params.FilterType = Enum.RaycastFilterType.Blacklist
-
 	local ray = workspace:Raycast(origin, targetPos - origin, params)
 	return ray and not ray.Instance:IsDescendantOf(char)
 end
-
--- ===============================
--- AIMBOT / AIMLOCK HARD LOCK
--- ===============================
-local LockedTarget
 
 local function GetClosestPlayer()
 	local best, dist = nil, FOV
@@ -209,8 +192,7 @@ local function GetClosestPlayer()
 		if IsValidEnemy(plr) and plr.Character:FindFirstChild("Head") then
 			local pos, vis = Camera:WorldToViewportPoint(plr.Character.Head.Position)
 			if vis then
-				local mag = (Vector2.new(pos.X,pos.Y) -
-				Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)).Magnitude
+				local mag = (Vector2.new(pos.X,pos.Y) - Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)).Magnitude
 				if mag < dist and not HasWall(Camera.CFrame.Position, plr.Character.Head.Position, plr.Character) then
 					dist = mag
 					best = plr
@@ -222,7 +204,43 @@ local function GetClosestPlayer()
 end
 
 -- ===============================
--- LOOP
+-- BOTÕES CHEAT
+-- ===============================
+local function CreateButton(text,y)
+	local b = Instance.new("TextButton", Main)
+	b.Size = UDim2.fromOffset(260,32)
+	b.Position = UDim2.fromOffset(20,y)
+	b.Text = text
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 13
+	b.TextColor3 = Color3.new(1,1,1)
+	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+	return b
+end
+
+local AimbotBtn = CreateButton("AIMBOT: OFF",60)
+local AimLockBtn = CreateButton("AIMLOCK: OFF",110)
+local ESPBtn = CreateButton("ESP: OFF",160)
+
+AimbotBtn.MouseButton1Click:Connect(function()
+	Aimbot = not Aimbot
+	AimbotBtn.Text = Aimbot and "AIMBOT: ON" or "AIMBOT: OFF"
+end)
+
+AimLockBtn.MouseButton1Click:Connect(function()
+	AimLock = not AimLock
+	LockedTarget = nil
+	AimLockBtn.Text = AimLock and "AIMLOCK: ON" or "AIMLOCK: OFF"
+end)
+
+ESPBtn.MouseButton1Click:Connect(function()
+	ESP = not ESP
+	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
+end)
+
+-- ===============================
+-- LOOP PRINCIPAL
 -- ===============================
 RunService.RenderStepped:Connect(function()
 	if not ScriptLiberado then return end
@@ -230,10 +248,7 @@ RunService.RenderStepped:Connect(function()
 	if Aimbot then
 		local t = GetClosestPlayer()
 		if t and t.Character and t.Character:FindFirstChild("Head") then
-			Camera.CFrame = Camera.CFrame:Lerp(
-				CFrame.new(Camera.CFrame.Position, t.Character.Head.Position),
-				Smoothness
-			)
+			Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, t.Character.Head.Position), Smoothness)
 		end
 	end
 
@@ -251,7 +266,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ===============================
--- KEY CONFIRM
+-- KEY SYSTEM ACTIONS
 -- ===============================
 Confirm.MouseButton1Click:Connect(function()
 	if Box.Text == VALID_KEY then
