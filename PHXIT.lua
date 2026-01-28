@@ -1,4 +1,4 @@
---[[ PHXIT - GUI NOVA (AIMBOT, AIMLOCK E ESP FUNCIONANDO) ]]--
+--[[ PHXIT - VERSAO FINAL + GUI NOVA (AIMBOT, AIMLOCK E ESP FUNCIONANDO) ]]--
 
 -- ===============================
 -- SERVIÇOS
