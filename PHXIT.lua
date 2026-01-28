@@ -219,7 +219,7 @@ local function GetClosestPlayer()
 end
 
 -- ===============================
--- ESP COMPLETO COM TEAM CHECK
+-- ESP FUNCIONAL
 -- ===============================
 local function IsEnemy(plr)
 	if plr == lp then return false end
@@ -232,60 +232,51 @@ local function IsEnemy(plr)
 end
 
 local function ApplyESP(plr)
-	if not ESP then return end
+	if not ESP or not plr.Character then return end
 	if not IsEnemy(plr) then RemoveESP(plr) return end
 	if ESPs[plr] then return end
-	if not plr.Character then return end
 
-	local h = Instance.new("Highlight")
-	h.Name = "PHXIT_ESP"
-	h.Adornee = plr.Character
-	h.FillColor = Color3.fromRGB(255,0,0)
-	h.FillTransparency = 0.4
-	h.OutlineColor = Color3.fromRGB(255,255,255)
-	h.OutlineTransparency = 0
-	h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-	h.Parent = plr.Character
-	ESPs[plr] = h
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "PHXIT_ESP"
+	highlight.Adornee = plr.Character
+	highlight.FillColor = Color3.fromRGB(255,0,0)
+	highlight.FillTransparency = 0.4
+	highlight.OutlineColor = Color3.fromRGB(255,255,255)
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = workspace
+	ESPs[plr] = highlight
 end
 
-local function RemoveESP(plr)
+function RemoveESP(plr)
 	if ESPs[plr] then
 		ESPs[plr]:Destroy()
 		ESPs[plr] = nil
 	end
 end
 
-local function RefreshESP()
+function RefreshESP()
 	for _, plr in ipairs(Players:GetPlayers()) do
-		if ESP then
-			ApplyESP(plr)
-		else
-			RemoveESP(plr)
-		end
+		if ESP then ApplyESP(plr) else RemoveESP(plr) end
 	end
 end
 
 local function ConnectCharacter(plr)
 	plr.CharacterAdded:Connect(function()
-		task.wait(0.5)
+		task.wait(0.3)
 		if ESP then ApplyESP(plr) end
 	end)
 end
 
-Players.PlayerAdded:Connect(ConnectCharacter)
 for _, plr in ipairs(Players:GetPlayers()) do ConnectCharacter(plr) end
+Players.PlayerAdded:Connect(ConnectCharacter)
 Players.PlayerRemoving:Connect(RemoveESP)
 
 task.spawn(function()
 	while true do
-		task.wait(0.2)
-		if ESP then
-			for _, plr in ipairs(Players:GetPlayers()) do
-				if plr.Character then ApplyESP(plr) end
-			end
-		else
-			for _, plr in pairs(ESPs) do RemoveESP(plr) end
+		task.wait(0.3)
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if ESP then ApplyESP(plr) end
 		end
 	end
 end)
@@ -354,10 +345,10 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ===============================
--- KEY SYSTEM ACTIONS (CORRIGIDO)
+-- KEY SYSTEM ACTIONS
 -- ===============================
 Confirm.MouseButton1Click:Connect(function()
-	local input = Box.Text:gsub("%s+",""):upper() -- remove espaços e força maiúsculo
+	local input = Box.Text:gsub("%s+",""):upper()
 	if input == VALID_KEY:upper() then
 		ScriptLiberado = true
 		KeyFrame.Visible = false
