@@ -215,33 +215,22 @@ local FOV = 180
 local Smoothness = 0.15
 
 -- ===============================
--- WALL CHECK
+-- AIMBOT / AIMLOCK / ESP COMBINADO
 -- ===============================
-local function HasWall(origin, targetPos, targetChar)
-	local params = RaycastParams.new()
-	params.FilterDescendantsInstances = {lp.Character}
-	params.FilterType = Enum.RaycastFilterType.Blacklist
+local LockedTarget = nil
 
-	local result = workspace:Raycast(origin, targetPos - origin, params)
-	if result then
-		return not result.Instance:IsDescendantOf(targetChar)
-	end
-	return false
-end
-
--- ===============================
--- PLAYER MAIS PRÓXIMO
--- ===============================
+-- Player mais próximo no FOV
 local function GetClosestPlayer()
 	local closest, dist = nil, FOV
 
-	for _,plr in ipairs(Players:GetPlayers()) do
+	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= lp and plr.Character and plr.Character:FindFirstChild("Head") then
 			local head = plr.Character.Head
 			local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
+
 			if onScreen then
-				local mag = (Vector2.new(pos.X,pos.Y) -
-					Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+				local mag = (Vector2.new(pos.X, pos.Y)
+					- Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
 
 				if mag < dist and not HasWall(Camera.CFrame.Position, head.Position, plr.Character) then
 					dist = mag
@@ -250,11 +239,12 @@ local function GetClosestPlayer()
 			end
 		end
 	end
+
 	return closest
 end
 
 -- ===============================
--- ESP REVISADO
+-- ESP
 -- ===============================
 local function ApplyESP(plr)
 	if plr ~= lp and plr.Character and not plr.Character:FindFirstChild("PHXIT_ESP") then
@@ -282,84 +272,75 @@ local function ToggleESP(state)
 	end
 end
 
--- Atualiza ESP quando um novo jogador entra
-Players.PlayerAdded:Connect(function(plr)
-	plr.CharacterAdded:Connect(function(char)
+-- ===============================
+-- HOOKS PARA NOVOS PLAYERS / RESPAWN
+-- ===============================
+local function HookCharacter(plr)
+	if plr == lp then return end
+
+	-- Atualiza LockedTarget no respawn
+	plr.CharacterAdded:Connect(function()
+		if AimLock then
+			LockedTarget = nil
+		end
 		if ESP then
 			ApplyESP(plr)
 		end
 	end)
+
+	-- Aplica ESP imediatamente se ativo
 	if ESP then
 		ApplyESP(plr)
 	end
-end)
+end
 
--- Atualiza ESP quando o personagem do jogador atual respawna
-lp.CharacterAdded:Connect(function(char)
+-- Players já no jogo
+for _, plr in ipairs(Players:GetPlayers()) do
+	HookCharacter(plr)
+end
+
+-- Players que entrarem depois
+Players.PlayerAdded:Connect(HookCharacter)
+
+-- Atualiza ESP se o personagem local respawnar
+lp.CharacterAdded:Connect(function()
 	if ESP then
 		ToggleESP(true)
 	end
 end)
 
 -- ===============================
--- BOTÕES
--- ===============================
-local function CreateButton(text, y)
-	local b = Instance.new("TextButton", Main)
-	b.Size = UDim2.fromOffset(260,32)
-	b.Position = UDim2.fromOffset(20,y)
-	b.Text = text
-	b.Font = Enum.Font.GothamBold
-	b.TextSize = 13
-	b.TextColor3 = Color3.new(1,1,1)
-	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
-	return b
-end
-
-local AimbotBtn = CreateButton("AIMBOT: OFF", 60)
-local AimLockBtn = CreateButton("AIMLOCK: OFF", 100)
-local ESPBtn = CreateButton("ESP: OFF", 140)
-
-AimbotBtn.MouseButton1Click:Connect(function()
-	Aimbot = not Aimbot
-	AimbotBtn.Text = Aimbot and "AIMBOT: ON" or "AIMBOT: OFF"
-end)
-
-AimLockBtn.MouseButton1Click:Connect(function()
-	AimLock = not AimLock
-	LockedTarget = nil
-	AimLockBtn.Text = AimLock and "AIMLOCK: ON" or "AIMLOCK: OFF"
-end)
-
-ESPBtn.MouseButton1Click:Connect(function()
-	ESP = not ESP
-	ToggleESP(ESP)
-	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
-end)
-
--- ===============================
--- LOOP PRINCIPAL
+-- LOOP PRINCIPAL AIMBOT / AIMLOCK
 -- ===============================
 RunService.RenderStepped:Connect(function()
+	if not ScriptLiberado then return end
+
+	-- AIMBOT: mira suave
 	if Aimbot then
 		local target = GetClosestPlayer()
 		if target and target.Character then
-			local head = target.Character.Head
-			Camera.CFrame = Camera.CFrame:Lerp(
-				CFrame.new(Camera.CFrame.Position, head.Position),
-				Smoothness
-			)
+			local head = target.Character:FindFirstChild("Head")
+			if head then
+				Camera.CFrame = Camera.CFrame:Lerp(
+					CFrame.new(Camera.CFrame.Position, head.Position),
+					Smoothness
+				)
+			end
 		end
 	end
 
+	-- AIMLOCK: trava contínua
 	if AimLock then
-		if not LockedTarget then
+		if not LockedTarget
+			or not LockedTarget.Character
+			or not LockedTarget.Character:FindFirstChild("Head") then
+
 			LockedTarget = GetClosestPlayer()
 		end
+
 		if LockedTarget and LockedTarget.Character then
-			local head = LockedTarget.Character.Head
-			if not HasWall(Camera.CFrame.Position, head.Position, LockedTarget.Character) then
+			local head = LockedTarget.Character:FindFirstChild("Head")
+			if head and not HasWall(Camera.CFrame.Position, head.Position, LockedTarget.Character) then
 				Camera.CFrame = CFrame.new(Camera.CFrame.Position, head.Position)
 			end
 		end
