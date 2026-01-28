@@ -176,7 +176,7 @@ local Aimbot = false
 local AimLock = false
 local ESP = false
 local FOVInput = 180
-local Smoothness = 0.15 -- mais suave
+local Smoothness = 0.15
 local LockedTarget
 local ESPs = {}
 
@@ -219,23 +219,27 @@ local function GetClosestPlayer()
 end
 
 -- ===============================
--- ESP FUNCIONAL
+-- ESP FUNCIONAL MELHORADO
 -- ===============================
 local function ApplyESP(plr)
 	if not ESP or not plr.Character then return end
 	if not IsValidEnemy(plr) then RemoveESP(plr) return end
-	if ESPs[plr] then return end
-
-	local highlight = Instance.new("Highlight")
-	highlight.Name = "PHXIT_ESP"
-	highlight.Adornee = plr.Character
-	highlight.FillColor = Color3.fromRGB(255,0,0)
-	highlight.FillTransparency = 0.4
-	highlight.OutlineColor = Color3.fromRGB(255,255,255)
-	highlight.OutlineTransparency = 0
-	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-	highlight.Parent = workspace
-	ESPs[plr] = highlight
+	
+	local highlight = ESPs[plr]
+	if not highlight then
+		highlight = Instance.new("Highlight")
+		highlight.Name = "PHXIT_ESP"
+		highlight.Adornee = plr.Character
+		highlight.FillColor = Color3.fromRGB(255,0,0)
+		highlight.FillTransparency = 0.4
+		highlight.OutlineColor = Color3.fromRGB(255,255,255)
+		highlight.OutlineTransparency = 0
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.Parent = workspace
+		ESPs[plr] = highlight
+	else
+		highlight.Adornee = plr.Character -- segue respawn
+	end
 end
 
 function RemoveESP(plr)
@@ -244,23 +248,6 @@ function RemoveESP(plr)
 		ESPs[plr] = nil
 	end
 end
-
-function RefreshESP()
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if ESP then ApplyESP(plr) else RemoveESP(plr) end
-	end
-end
-
-local function ConnectCharacter(plr)
-	plr.CharacterAdded:Connect(function()
-		task.wait(0.3)
-		if ESP then ApplyESP(plr) end
-	end)
-end
-
-for _, plr in ipairs(Players:GetPlayers()) do ConnectCharacter(plr) end
-Players.PlayerAdded:Connect(ConnectCharacter)
-Players.PlayerRemoving:Connect(RemoveESP)
 
 -- ===============================
 -- BOTÕES CHEAT
@@ -297,11 +284,10 @@ end)
 ESPBtn.MouseButton1Click:Connect(function()
 	ESP = not ESP
 	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
-	RefreshESP()
 end)
 
 -- ===============================
--- BOTÕES DE AJUSTE DE FOV
+-- BOTÕES FOV +/-
 -- ===============================
 local function CreateFOVButton(text, x, y, callback)
 	local btn = Instance.new("TextButton", Main)
@@ -350,6 +336,17 @@ FOVCircle.Filled = false
 RunService.RenderStepped:Connect(function()
 	if not ScriptLiberado then return end
 
+	-- Atualiza ESP constantemente
+	if ESP then
+		for _, plr in ipairs(Players:GetPlayers()) do
+			ApplyESP(plr)
+		end
+	else
+		for _, plr in ipairs(Players:GetPlayers()) do
+			RemoveESP(plr)
+		end
+	end
+
 	-- Atualiza círculo do FOV
 	if Aimbot or AimLock then
 		FOVCircle.Visible = true
@@ -370,9 +367,9 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 
-	-- AIMLOCK
+	-- AIMLOCK (não atravessa parede)
 	if AimLock then
-		if not LockedTarget or not IsValidEnemy(LockedTarget) or not LockedTarget.Character or not LockedTarget.Character:FindFirstChild("Head") then
+		if not LockedTarget or not IsValidEnemy(LockedTarget) or not LockedTarget.Character or not LockedTarget.Character:FindFirstChild("Head") or HasWall(Camera.CFrame.Position, LockedTarget.Character.Head.Position, LockedTarget.Character) then
 			LockedTarget = GetClosestPlayer()
 		end
 		if LockedTarget and LockedTarget.Character and LockedTarget.Character:FindFirstChild("Head") then
@@ -407,4 +404,14 @@ end)
 PH.MouseButton1Click:Connect(function()
 	Mini.Visible = false
 	Main.Visible = true
+end)
+
+-- ===============================
+-- ESP RECONNECT RESPAWN
+-- ===============================
+Players.PlayerAdded:Connect(function(plr)
+	plr.CharacterAdded:Connect(function()
+		task.wait(0.1)
+		if ESP then ApplyESP(plr) end
+	end)
 end)
