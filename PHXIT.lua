@@ -1,4 +1,4 @@
---[[ PHXIT - PvP Script (DELTA EXECUTOR) GG pvp script Script client-side ]]
+--[[ PHXIT - PvP Treino script (DELTA EXECUTOR) GG pvp script Script client-side ]]
 
 -- ===============================
 -- SERVIÇOS
@@ -201,7 +201,7 @@ local ESP = true
 -- ===============================
 -- NPC DETECTION
 -- ===============================
-local function GetNPCs()
+local function GetPlayes()
 	local t = {}
 	for _,m in ipairs(workspace:GetChildren()) do
 		if m:IsA("Model")
