@@ -181,16 +181,6 @@ local FOV = 180
 local Smoothness = 0.15
 
 -- ===============================
--- ESTADOS
--- ===============================
-local Aimbot = false
-local AimLock = false
-local ESP = false
-local LockedTarget = nil
-local FOV = 180
-local Smoothness = 0.15
-
--- ===============================
 -- WALL CHECK
 -- ===============================
 local function HasWall(origin, targetPos, targetChar)
@@ -315,8 +305,6 @@ RunService.RenderStepped:Connect(function()
 			end
 		end
 	end
-end)
-
 end)
 
 -- ===============================
