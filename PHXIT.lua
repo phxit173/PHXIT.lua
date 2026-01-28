@@ -164,6 +164,7 @@ local ESP = false
 local FOV = 180
 local Smoothness = 0.12
 local LockedTarget
+local ESPs = {}
 
 -- ===============================
 -- FUNÇÕES CHEAT
@@ -206,31 +207,21 @@ end
 -- ===============================
 -- ESP COMPLETO COM TEAM CHECK
 -- ===============================
-local ESPs = {} -- guarda os highlights criados
-
--- Função pra checar se é inimigo
 local function IsEnemy(plr)
 	if plr == lp then return false end
 	if not plr.Character then return false end
 	local hum = plr.Character:FindFirstChildOfClass("Humanoid")
 	if not hum or hum.Health <= 0 then return false end
 	if plr.Character:FindFirstChildOfClass("ForceField") then return false end
-
-	-- Team check completo
-	if lp.Team and plr.Team and lp.Team == plr.Team then
-		return false
-	end
-
+	if lp.Team and plr.Team and lp.Team == plr.Team then return false end
 	return true
 end
 
--- Cria Highlight no player
 local function ApplyESP(plr)
 	if not ESP then return end
 	if not IsEnemy(plr) then return end
+	if ESPs[plr] then return end
 	if not plr.Character then return end
-	if ESPs[plr] then return end -- já existe
-
 	local h = Instance.new("Highlight")
 	h.Name = "PHXIT_ESP"
 	h.Adornee = plr.Character
@@ -240,11 +231,9 @@ local function ApplyESP(plr)
 	h.OutlineTransparency = 0
 	h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	h.Parent = plr.Character
-
 	ESPs[plr] = h
 end
 
--- Remove Highlight do player
 local function RemoveESP(plr)
 	if ESPs[plr] then
 		ESPs[plr]:Destroy()
@@ -252,7 +241,6 @@ local function RemoveESP(plr)
 	end
 end
 
--- Atualiza ESP de todos os players
 local function RefreshESP()
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if ESP then
@@ -263,31 +251,18 @@ local function RefreshESP()
 	end
 end
 
--- Atualiza ESP em respawn
 Players.PlayerAdded:Connect(function(plr)
 	plr.CharacterAdded:Connect(function()
 		task.wait(0.5)
-		if ESP then
-			ApplyESP(plr)
-		end
+		if ESP then ApplyESP(plr) end
 	end)
 end)
 
 lp.CharacterAdded:Connect(function()
 	task.wait(0.5)
-	if ESP then
-		RefreshESP()
-	end
-end)
-
--- Botão ESP
-ESPBtn.MouseButton1Click:Connect(function()
-	ESP = not ESP
-	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
 	RefreshESP()
 end)
 
--- Remove ESP se player sair do jogo
 Players.PlayerRemoving:Connect(function(plr)
 	RemoveESP(plr)
 end)
@@ -326,6 +301,7 @@ end)
 ESPBtn.MouseButton1Click:Connect(function()
 	ESP = not ESP
 	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
+	RefreshESP()
 end)
 
 -- ===============================
@@ -358,10 +334,12 @@ end)
 -- KEY SYSTEM ACTIONS
 -- ===============================
 Confirm.MouseButton1Click:Connect(function()
-	if Box.Text == VALID_KEY then
+	local input = Box.Text:gsub("%s+","") -- remove espaços extras
+	if input == VALID_KEY then
 		ScriptLiberado = true
 		KeyFrame:Destroy()
 		Main.Visible = true
+		Mini.Visible = false
 	else
 		Confirm.Text = "KEY INVÁLIDA"
 		task.wait(1)
