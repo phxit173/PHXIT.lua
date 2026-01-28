@@ -215,6 +215,55 @@ local FOV = 180
 local Smoothness = 0.15
 
 -- ===============================
+-- TEAM CHECK (ULTRA AVANÇADO)
+-- ===============================
+local function IsValidEnemy(plr)
+	if not plr or plr == lp then return false end
+
+	local char = plr.Character
+	if not char then return false end
+
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	local head = char:FindFirstChild("Head")
+	if not hum or not head then return false end
+	if hum.Health <= 0 then return false end
+
+	-- Spawn protection
+	if char:FindFirstChildOfClass("ForceField") then
+		return false
+	end
+
+	-- Friend check
+	pcall(function()
+		if plr:IsFriendsWith(lp.UserId) then
+			return false
+		end
+	end)
+
+	-- Jogos sem team
+	if not lp.Team and not plr.Team then
+		return true
+	end
+
+	-- Neutral
+	if lp.Neutral or plr.Neutral then
+		return true
+	end
+
+	-- Team diferente
+	if lp.Team ~= plr.Team then
+		return true
+	end
+
+	-- Backup (jogo bugado)
+	if lp.TeamColor ~= plr.TeamColor then
+		return true
+	end
+
+	return false
+end
+
+-- ===============================
 -- FUNÇÕES DE CHEAT
 -- ===============================
 
