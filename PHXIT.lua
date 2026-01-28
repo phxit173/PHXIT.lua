@@ -254,27 +254,59 @@ local function GetClosestPlayer()
 end
 
 -- ===============================
--- ESP
+-- ESP REFINADO
 -- ===============================
-local function ToggleESP(state)
-	for _,plr in ipairs(Players:GetPlayers()) do
-		if plr ~= lp and plr.Character then
-			if state then
-				if not plr.Character:FindFirstChild("PHXIT_ESP") then
-					local h = Instance.new("Highlight", plr.Character)
-					h.Name = "PHXIT_ESP"
-					h.FillColor = Color3.fromRGB(255,0,0)
-					h.OutlineColor = Color3.fromRGB(255,255,255)
-					h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-				end
-			else
-				if plr.Character:FindFirstChild("PHXIT_ESP") then
-					plr.Character.PHXIT_ESP:Destroy()
-				end
-			end
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "PHXIT_ESP_FOLDER"
+ESPFolder.Parent = workspace
+
+local function CreateESPForPlayer(plr)
+	if plr == lp then return end
+	if plr.Character and not plr.Character:FindFirstChild("PHXIT_ESP") then
+		local highlight = Instance.new("Highlight")
+		highlight.Name = "PHXIT_ESP"
+		highlight.Adornee = plr.Character
+		highlight.FillColor = Color3.fromRGB(255,0,0)
+		highlight.OutlineColor = Color3.fromRGB(255,255,255)
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.Parent = ESPFolder
+	end
+end
+
+local function RemoveESPFromPlayer(plr)
+	if plr.Character then
+		local esp = ESPFolder:FindFirstChild("PHXIT_ESP")
+		if esp and esp.Adornee == plr.Character then
+			esp:Destroy()
 		end
 	end
 end
+
+local function UpdateESP()
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if ESP then
+			CreateESPForPlayer(plr)
+		else
+			RemoveESPFromPlayer(plr)
+		end
+	end
+end
+
+-- Atualiza ESP quando entra ou sai jogador
+Players.PlayerAdded:Connect(function(plr)
+	plr.CharacterAdded:Connect(function()
+		if ESP then
+			CreateESPForPlayer(plr)
+		end
+	end)
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+	RemoveESPFromPlayer(plr)
+end)
+
+-- Atualiza sempre o ESP ativo
+RunService.RenderStepped:Connect(UpdateESP)
 
 -- ===============================
 -- BOTÕES
