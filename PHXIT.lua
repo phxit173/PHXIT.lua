@@ -171,13 +171,14 @@ PH.MouseButton1Click:Connect(function()
 end)
 
 -- ===============================
--- AIMBOT / AIMLOCK / ESP 
+-- ESTADOS
 -- ===============================
-
-RunService.RenderStepped:Connect(function()
-	if not ScriptLiberado then return end -- ✅ PROTEÇÃO
-	-- teu código continua daqui pra baixo
-end)
+local Aimbot = false
+local AimLock = false
+local ESP = false
+local LockedTarget = nil
+local FOV = 180
+local Smoothness = 0.15
 
 -- ===============================
 -- ESTADOS
@@ -314,4 +315,43 @@ RunService.RenderStepped:Connect(function()
 			end
 		end
 	end
+end)
+
+end)
+
+-- ===============================
+-- BOTÕES
+-- ===============================
+local function CreateButton(text, y)
+	local b = Instance.new("TextButton", Main)
+	b.Size = UDim2.fromOffset(260,32)
+	b.Position = UDim2.fromOffset(20,y)
+	b.Text = text
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 13
+	b.TextColor3 = Color3.new(1,1,1)
+	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+	return b
+end
+
+local AimbotBtn = CreateButton("AIMBOT: OFF", 60)
+local AimLockBtn = CreateButton("AIMLOCK: OFF", 100)
+local ESPBtn = CreateButton("ESP: OFF", 140)
+
+AimbotBtn.MouseButton1Click:Connect(function()
+	Aimbot = not Aimbot
+	AimbotBtn.Text = Aimbot and "AIMBOT: ON" or "AIMBOT: OFF"
+end)
+
+AimLockBtn.MouseButton1Click:Connect(function()
+	AimLock = not AimLock
+	LockedTarget = nil
+	AimLockBtn.Text = AimLock and "AIMLOCK: ON" or "AIMLOCK: OFF"
+end)
+
+ESPBtn.MouseButton1Click:Connect(function()
+	ESP = not ESP
+	ToggleESP(ESP)
+	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
 end)
