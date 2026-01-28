@@ -1,20 +1,20 @@
---[[ PHXIT - VERSAO FINAL + GUI NOVA (AIMBOT, AIMLOCK E ESP FUNCIONANDO) ]]--
+--[[ PHXIT - GUI NOVA (CHEAT)  ]]---
 
 -- ===============================
 -- SERVIÇOS
 -- ===============================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local lp = Players.LocalPlayer
-local Camera = workspace.CurrentCamera -- ✅ CORREÇÃO
 
 -- ===============================
 -- KEY SYSTEM
 -- ===============================
 local VALID_KEY = "PH.DS25567"
-local DISCORD_LINK = "https://discord.gg/xE3xxzAcH3"
 local ScriptLiberado = false
+local DISCORD_LINK = "https://discord.gg/xE3xxzAcH3" -- Link do Discord
 
 -- ===============================
 -- SCREEN GUI
@@ -33,9 +33,47 @@ local function RGBStroke(ui)
 	task.spawn(function()
 		local h = 0
 		while ui.Parent do
-			h = (h + 0.5) % 360
-			stroke.Color = Color3.fromHSV(h/360, 0.6, 1)
+			h = (h + 1) % 360
+			stroke.Color = Color3.fromHSV(h/360, 0.7, 1)
 			task.wait(0.03)
+		end
+	end)
+end
+
+-- ===============================
+-- FUNÇÃO DRAG (MOBILE + PC)
+-- ===============================
+local function MakeDraggable(frame)
+	local dragging, dragStart, startPos
+
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = frame.Position
+		end
+	end)
+
+	frame.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and (
+			input.UserInputType == Enum.UserInputType.MouseMovement
+			or input.UserInputType == Enum.UserInputType.Touch
+		) then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
 		end
 	end)
 end
@@ -44,46 +82,28 @@ end
 -- KEY GUI
 -- ===============================
 local KeyFrame = Instance.new("Frame", ScreenGui)
-KeyFrame.Size = UDim2.fromOffset(320,230)
+KeyFrame.Size = UDim2.fromOffset(300,200)
 KeyFrame.Position = UDim2.fromScale(0.35,0.3)
 KeyFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-KeyFrame.Active = true
-KeyFrame.Draggable = true
 Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0,14)
 RGBStroke(KeyFrame)
-
-local KeyTitle = Instance.new("TextLabel", KeyFrame)
-KeyTitle.Size = UDim2.new(1,0,0,40)
-KeyTitle.Text = "PHXIT | KEY"
-KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.TextSize = 16
-KeyTitle.TextColor3 = Color3.new(1,1,1)
-KeyTitle.BackgroundTransparency = 1
+MakeDraggable(KeyFrame)
 
 local Box = Instance.new("TextBox", KeyFrame)
-Box.Size = UDim2.fromOffset(260,36)
-Box.Position = UDim2.fromOffset(30,70)
+Box.Size = UDim2.fromOffset(240,35)
+Box.Position = UDim2.fromOffset(30,60)
 Box.PlaceholderText = "Digite a key"
 Box.BackgroundColor3 = Color3.fromRGB(35,35,35)
 Box.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", Box).CornerRadius = UDim.new(0,10)
-
-local Info = Instance.new("TextLabel", KeyFrame)
-Info.Size = UDim2.new(1,0,0,30)
-Info.Position = UDim2.fromOffset(0,110)
-Info.Text = "Pegue a key no Discord"
-Info.Font = Enum.Font.Gotham
-Info.TextSize = 12
-Info.TextColor3 = Color3.fromRGB(200,200,200)
-Info.BackgroundTransparency = 1
+Instance.new("UICorner", Box)
 
 local Confirm = Instance.new("TextButton", KeyFrame)
-Confirm.Size = UDim2.fromOffset(260,36)
-Confirm.Position = UDim2.fromOffset(30,150)
+Confirm.Size = UDim2.fromOffset(240,35)
+Confirm.Position = UDim2.fromOffset(30,120)
 Confirm.Text = "CONFIRMAR"
 Confirm.BackgroundColor3 = Color3.fromRGB(180,50,50)
 Confirm.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", Confirm).CornerRadius = UDim.new(0,10)
+Instance.new("UICorner", Confirm)
 
 -- ===============================
 -- GUI PRINCIPAL
@@ -93,45 +113,59 @@ Main.Size = UDim2.fromOffset(300,220)
 Main.Position = UDim2.fromScale(0.05,0.35)
 Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Main.Visible = false
-Main.Active = true
-Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,12)
 RGBStroke(Main)
+MakeDraggable(Main)
 
-local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1,0,0,35)
-Title.Text = "PHXIT | PvP"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 14
-Title.TextColor3 = Color3.new(1,1,1)
-Title.BackgroundTransparency = 1
-
--- BOTÃO FECHAR
 local Close = Instance.new("TextButton", Main)
 Close.Size = UDim2.fromOffset(30,30)
 Close.Position = UDim2.fromOffset(260,5)
 Close.Text = "X"
 Close.BackgroundColor3 = Color3.fromRGB(150,50,50)
-Instance.new("UICorner", Close).CornerRadius = UDim.new(1,0)
+Instance.new("UICorner", Close)
 
--- BOTÃO OCULTAR
 local Hide = Instance.new("TextButton", Main)
 Hide.Size = UDim2.fromOffset(30,30)
 Hide.Position = UDim2.fromOffset(225,5)
 Hide.Text = "-"
 Hide.BackgroundColor3 = Color3.fromRGB(60,60,60)
-Instance.new("UICorner", Hide).CornerRadius = UDim.new(1,0)
+Instance.new("UICorner", Hide)
 
+-- ===============================
+-- BOTÃO DISCORD (COPIAR LINK)
+-- ===============================
+local DiscordBtn = Instance.new("TextButton", Main)
+DiscordBtn.Size = UDim2.fromOffset(180, 30)
+DiscordBtn.Position = UDim2.fromOffset(60, 180)
+DiscordBtn.Text = "COPIAR DISCORD"
+DiscordBtn.Font = Enum.Font.GothamBold
+DiscordBtn.TextSize = 13
+DiscordBtn.TextColor3 = Color3.new(1,1,1)
+DiscordBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+Instance.new("UICorner", DiscordBtn).CornerRadius = UDim.new(0,10)
+
+DiscordBtn.MouseButton1Click:Connect(function()
+	if setclipboard then
+		setclipboard(DISCORD_LINK)
+		DiscordBtn.Text = "COPIADO ✅"
+	else
+		DiscordBtn.Text = "NÃO SUPORTADO"
+	end
+	task.wait(1.5)
+	DiscordBtn.Text = "COPIAR DISCORD"
+end)
+
+-- ===============================
 -- MINI PH
+-- ===============================
 local Mini = Instance.new("Frame", ScreenGui)
 Mini.Size = UDim2.fromOffset(60,60)
 Mini.Position = UDim2.fromScale(0.05,0.5)
 Mini.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Mini.Visible = false
-Mini.Active = true
-Mini.Draggable = true
 Instance.new("UICorner", Mini).CornerRadius = UDim.new(0,12)
 RGBStroke(Mini)
+MakeDraggable(Mini)
 
 local PH = Instance.new("TextButton", Mini)
 PH.Size = UDim2.new(1,0,1,0)
@@ -305,41 +339,4 @@ RunService.RenderStepped:Connect(function()
 			end
 		end
 	end
-end)
-
--- ===============================
--- BOTÕES
--- ===============================
-local function CreateButton(text, y)
-	local b = Instance.new("TextButton", Main)
-	b.Size = UDim2.fromOffset(260,32)
-	b.Position = UDim2.fromOffset(20,y)
-	b.Text = text
-	b.Font = Enum.Font.GothamBold
-	b.TextSize = 13
-	b.TextColor3 = Color3.new(1,1,1)
-	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
-	return b
-end
-
-local AimbotBtn = CreateButton("AIMBOT: OFF", 60)
-local AimLockBtn = CreateButton("AIMLOCK: OFF", 100)
-local ESPBtn = CreateButton("ESP: OFF", 140)
-
-AimbotBtn.MouseButton1Click:Connect(function()
-	Aimbot = not Aimbot
-	AimbotBtn.Text = Aimbot and "AIMBOT: ON" or "AIMBOT: OFF"
-end)
-
-AimLockBtn.MouseButton1Click:Connect(function()
-	AimLock = not AimLock
-	LockedTarget = nil
-	AimLockBtn.Text = AimLock and "AIMLOCK: ON" or "AIMLOCK: OFF"
-end)
-
-ESPBtn.MouseButton1Click:Connect(function()
-	ESP = not ESP
-	ToggleESP(ESP)
-	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
 end)
