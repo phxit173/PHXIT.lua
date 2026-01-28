@@ -120,7 +120,7 @@ end)
 -- GUI PRINCIPAL
 -- ===============================
 local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.fromOffset(300,260)
+Main.Size = UDim2.fromOffset(300,300)
 Main.Position = UDim2.fromScale(0.05,0.35)
 Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Main.Visible = false
@@ -175,7 +175,7 @@ PH.Font = Enum.Font.GothamBold
 local Aimbot = false
 local AimLock = false
 local ESP = false
-local FOV = 180
+local FOVInput = 180
 local Smoothness = 0.12
 local LockedTarget
 local ESPs = {}
@@ -202,12 +202,12 @@ local function HasWall(origin, targetPos, char)
 end
 
 local function GetClosestPlayer()
-	local best, dist = nil, FOV
+	local best, dist = nil, FOVInput
 	for _,plr in ipairs(Players:GetPlayers()) do
-		if IsValidEnemy(plr) and plr.Character:FindFirstChild("Head") then
+		if IsValidEnemy(plr) and plr.Character and plr.Character:FindFirstChild("Head") then
 			local pos, vis = Camera:WorldToViewportPoint(plr.Character.Head.Position)
 			if vis then
-				local mag = (Vector2.new(pos.X,pos.Y) - Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)).Magnitude
+				local mag = (Vector2.new(pos.X,pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
 				if mag < dist and not HasWall(Camera.CFrame.Position, plr.Character.Head.Position, plr.Character) then
 					dist = mag
 					best = plr
@@ -221,19 +221,9 @@ end
 -- ===============================
 -- ESP FUNCIONAL
 -- ===============================
-local function IsEnemy(plr)
-	if plr == lp then return false end
-	if not plr.Character then return false end
-	local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-	if not hum or hum.Health <= 0 then return false end
-	if plr.Character:FindFirstChildOfClass("ForceField") then return false end
-	if lp.Team and plr.Team and lp.Team == plr.Team then return false end
-	return true
-end
-
 local function ApplyESP(plr)
 	if not ESP or not plr.Character then return end
-	if not IsEnemy(plr) then RemoveESP(plr) return end
+	if not IsValidEnemy(plr) then RemoveESP(plr) return end
 	if ESPs[plr] then return end
 
 	local highlight = Instance.new("Highlight")
@@ -272,19 +262,10 @@ for _, plr in ipairs(Players:GetPlayers()) do ConnectCharacter(plr) end
 Players.PlayerAdded:Connect(ConnectCharacter)
 Players.PlayerRemoving:Connect(RemoveESP)
 
-task.spawn(function()
-	while true do
-		task.wait(0.3)
-		for _, plr in ipairs(Players:GetPlayers()) do
-			if ESP then ApplyESP(plr) end
-		end
-	end
-end)
-
 -- ===============================
 -- BOTÕES CHEAT
 -- ===============================
-local function CreateButton(text,y)
+local function CreateButton(text, y)
 	local b = Instance.new("TextButton", Main)
 	b.Size = UDim2.fromOffset(260,32)
 	b.Position = UDim2.fromOffset(20,y)
@@ -300,6 +281,7 @@ end
 local AimbotBtn = CreateButton("AIMBOT: OFF",60)
 local AimLockBtn = CreateButton("AIMLOCK: OFF",110)
 local ESPBtn = CreateButton("ESP: OFF",160)
+local FOVBtn = CreateButton("FOV: "..FOVInput, 210)
 
 AimbotBtn.MouseButton1Click:Connect(function()
 	Aimbot = not Aimbot
@@ -318,28 +300,42 @@ ESPBtn.MouseButton1Click:Connect(function()
 	RefreshESP()
 end)
 
+FOVBtn.MouseButton1Click:Connect(function()
+	local input = Box.Text:gsub("%s+","")
+	local newFOV = tonumber(input)
+	if newFOV and newFOV > 0 and newFOV <= 1000 then
+		FOVInput = newFOV
+		FOVBtn.Text = "FOV: "..FOVInput
+	else
+		FOVBtn.Text = "FOV INVÁLIDO"
+		task.wait(1)
+		FOVBtn.Text = "FOV: "..FOVInput
+	end
+end)
+
 -- ===============================
 -- LOOP PRINCIPAL
 -- ===============================
 RunService.RenderStepped:Connect(function()
 	if not ScriptLiberado then return end
 
+	-- AIMBOT
 	if Aimbot then
-		local t = GetClosestPlayer()
-		if t and t.Character and t.Character:FindFirstChild("Head") then
-			Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, t.Character.Head.Position), Smoothness)
+		local target = GetClosestPlayer()
+		if target and target.Character and target.Character:FindFirstChild("Head") then
+			local head = target.Character.Head
+			Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, head.Position), Smoothness)
 		end
 	end
 
+	-- AIMLOCK TRAVADO
 	if AimLock then
-		if not LockedTarget or not IsValidEnemy(LockedTarget) then
+		if not LockedTarget or not IsValidEnemy(LockedTarget) or not LockedTarget.Character or not LockedTarget.Character:FindFirstChild("Head") then
 			LockedTarget = GetClosestPlayer()
 		end
-		if LockedTarget and LockedTarget.Character then
-			local head = LockedTarget.Character:FindFirstChild("Head")
-			if head and not HasWall(Camera.CFrame.Position, head.Position, LockedTarget.Character) then
-				Camera.CFrame = CFrame.new(Camera.CFrame.Position, head.Position)
-			end
+		if LockedTarget and LockedTarget.Character and LockedTarget.Character:FindFirstChild("Head") then
+			local head = LockedTarget.Character.Head
+			Camera.CFrame = CFrame.new(Camera.CFrame.Position, head.Position)
 		end
 	end
 end)
