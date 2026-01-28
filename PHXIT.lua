@@ -136,6 +136,20 @@ Hide.Text = "-"
 Hide.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Instance.new("UICorner", Hide)
 
+-- BOTÃO FECHAR (X)
+local Close = Instance.new("TextButton", Main)
+Close.Size = UDim2.fromOffset(30,30)
+Close.Position = UDim2.fromOffset(225,5)
+Close.Text = "X"
+Close.BackgroundColor3 = Color3.fromRGB(150,40,40)
+Close.TextColor3 = Color3.new(1,1,1)
+Close.Font = Enum.Font.GothamBold
+Instance.new("UICorner", Close)
+
+Close.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
 -- ===============================
 -- MINI PH
 -- ===============================
@@ -205,23 +219,18 @@ local function GetClosestPlayer()
 end
 
 -- ===============================
--- ESP COMPLETO COM TEAM CHECK (VERSÃO MELHORADA)
+-- ESP COMPLETO COM TEAM CHECK
 -- ===============================
-local ESPs = {} -- guarda highlights
-
--- Checa se player é inimigo
 local function IsEnemy(plr)
 	if plr == lp then return false end
 	if not plr.Character then return false end
 	local hum = plr.Character:FindFirstChildOfClass("Humanoid")
 	if not hum or hum.Health <= 0 then return false end
 	if plr.Character:FindFirstChildOfClass("ForceField") then return false end
-	-- Team check
 	if lp.Team and plr.Team and lp.Team == plr.Team then return false end
 	return true
 end
 
--- Aplica highlight
 local function ApplyESP(plr)
 	if not ESP then return end
 	if not IsEnemy(plr) then RemoveESP(plr) return end
@@ -240,7 +249,6 @@ local function ApplyESP(plr)
 	ESPs[plr] = h
 end
 
--- Remove highlight
 local function RemoveESP(plr)
 	if ESPs[plr] then
 		ESPs[plr]:Destroy()
@@ -248,7 +256,6 @@ local function RemoveESP(plr)
 	end
 end
 
--- Atualiza ESP de todos os players
 local function RefreshESP()
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if ESP then
@@ -259,7 +266,6 @@ local function RefreshESP()
 	end
 end
 
--- Atualiza ESP ao respawn
 local function ConnectCharacter(plr)
 	plr.CharacterAdded:Connect(function()
 		task.wait(0.5)
@@ -267,44 +273,21 @@ local function ConnectCharacter(plr)
 	end)
 end
 
--- Conecta players que entram no jogo
-Players.PlayerAdded:Connect(function(plr)
-	ConnectCharacter(plr)
-end)
+Players.PlayerAdded:Connect(ConnectCharacter)
+for _, plr in ipairs(Players:GetPlayers()) do ConnectCharacter(plr) end
+Players.PlayerRemoving:Connect(RemoveESP)
 
--- Conecta players já no jogo
-for _, plr in ipairs(Players:GetPlayers()) do
-	ConnectCharacter(plr)
-end
-
--- Remove ESP se sair do jogo
-Players.PlayerRemoving:Connect(function(plr)
-	RemoveESP(plr)
-end)
-
--- Loop de atualização contínua
 task.spawn(function()
 	while true do
 		task.wait(0.2)
 		if ESP then
 			for _, plr in ipairs(Players:GetPlayers()) do
-				if plr.Character then
-					ApplyESP(plr)
-				end
+				if plr.Character then ApplyESP(plr) end
 			end
 		else
-			for _, plr in pairs(ESPs) do
-				RemoveESP(plr)
-			end
+			for _, plr in pairs(ESPs) do RemoveESP(plr) end
 		end
 	end
-end)
-
--- Botão ESP
-ESPBtn.MouseButton1Click:Connect(function()
-	ESP = not ESP
-	ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
-	RefreshESP()
 end)
 
 -- ===============================
@@ -371,13 +354,13 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ===============================
--- KEY SYSTEM ACTIONS
+-- KEY SYSTEM ACTIONS (CORRIGIDO)
 -- ===============================
 Confirm.MouseButton1Click:Connect(function()
-	local input = Box.Text:gsub("%s+","") -- remove espaços extras
-	if input == VALID_KEY then
+	local input = Box.Text:gsub("%s+",""):upper() -- remove espaços e força maiúsculo
+	if input == VALID_KEY:upper() then
 		ScriptLiberado = true
-		KeyFrame:Destroy()
+		KeyFrame.Visible = false
 		Main.Visible = true
 		Mini.Visible = false
 	else
