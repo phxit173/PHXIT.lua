@@ -5,7 +5,9 @@
 -- ===============================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+
 local lp = Players.LocalPlayer
+local Camera = workspace.CurrentCamera -- ✅ CORREÇÃO
 
 -- ===============================
 -- KEY SYSTEM
@@ -120,7 +122,7 @@ Hide.Text = "-"
 Hide.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Instance.new("UICorner", Hide).CornerRadius = UDim.new(1,0)
 
--- QUADRADO PH
+-- MINI PH
 local Mini = Instance.new("Frame", ScreenGui)
 Mini.Size = UDim2.fromOffset(60,60)
 Mini.Position = UDim2.fromScale(0.05,0.5)
@@ -166,6 +168,15 @@ end)
 PH.MouseButton1Click:Connect(function()
 	Mini.Visible = false
 	Main.Visible = true
+end)
+
+-- ===============================
+-- AIMBOT / AIMLOCK / ESP 
+-- ===============================
+
+RunService.RenderStepped:Connect(function()
+	if not ScriptLiberado then return end -- ✅ PROTEÇÃO
+	-- teu código continua daqui pra baixo
 end)
 
 -- ===============================
