@@ -1,83 +1,151 @@
---[[ PHXIT - AIMBOT / AIMLOCK / ESP ]]--
+--[[ PHXIT - GUI NOVA (AIMBOT, AIMLOCK E ESP FUNCIONANDO) ]]--
 
 -- ===============================
 -- SERVIÇOS
 -- ===============================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
-
 local lp = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
 -- ===============================
--- KEY SYSTEM CONFIG
+-- KEY SYSTEM
 -- ===============================
 local VALID_KEY = "PH.DS25567"
 local DISCORD_LINK = "https://discord.gg/xE3xxzAcH3"
-
 local ScriptLiberado = false
+
+-- ===============================
+-- SCREEN GUI
+-- ===============================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PHXIT_GUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = lp:WaitForChild("PlayerGui")
+
+-- ===============================
+-- FUNÇÃO RGB BORDA
+-- ===============================
+local function RGBStroke(ui)
+	local stroke = Instance.new("UIStroke", ui)
+	stroke.Thickness = 1.5
+	task.spawn(function()
+		local h = 0
+		while ui.Parent do
+			h = (h + 0.5) % 360
+			stroke.Color = Color3.fromHSV(h/360, 0.6, 1)
+			task.wait(0.03)
+		end
+	end)
+end
 
 -- ===============================
 -- KEY GUI
 -- ===============================
-local KeyGui = Instance.new("ScreenGui")
-KeyGui.ResetOnSpawn = false
-KeyGui.Parent = lp:WaitForChild("PlayerGui")
-
-local KeyFrame = Instance.new("Frame", KeyGui)
-KeyFrame.Size = UDim2.fromOffset(320,220)
+local KeyFrame = Instance.new("Frame", ScreenGui)
+KeyFrame.Size = UDim2.fromOffset(320,230)
 KeyFrame.Position = UDim2.fromScale(0.35,0.3)
 KeyFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
 KeyFrame.Active = true
 KeyFrame.Draggable = true
 Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0,14)
+RGBStroke(KeyFrame)
 
-local Stroke = Instance.new("UIStroke", KeyFrame)
-Stroke.Thickness = 1.5
-
-local Title = Instance.new("TextLabel", KeyFrame)
-Title.Size = UDim2.new(1,0,0,40)
-Title.Text = "PHXIT | KEY"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
-Title.TextColor3 = Color3.new(1,1,1)
-Title.BackgroundTransparency = 1
+local KeyTitle = Instance.new("TextLabel", KeyFrame)
+KeyTitle.Size = UDim2.new(1,0,0,40)
+KeyTitle.Text = "PHXIT | KEY"
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.TextSize = 16
+KeyTitle.TextColor3 = Color3.new(1,1,1)
+KeyTitle.BackgroundTransparency = 1
 
 local Box = Instance.new("TextBox", KeyFrame)
 Box.Size = UDim2.fromOffset(260,36)
 Box.Position = UDim2.fromOffset(30,70)
 Box.PlaceholderText = "Digite a key"
-Box.Text = ""
-Box.Font = Enum.Font.Gotham
-Box.TextSize = 14
-Box.TextColor3 = Color3.new(1,1,1)
 Box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+Box.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", Box).CornerRadius = UDim.new(0,10)
-
-local Confirm = Instance.new("TextButton", KeyFrame)
-Confirm.Size = UDim2.fromOffset(260,36)
-Confirm.Position = UDim2.fromOffset(30,120)
-Confirm.Text = "CONFIRMAR"
-Confirm.Font = Enum.Font.GothamBold
-Confirm.TextSize = 14
-Confirm.TextColor3 = Color3.new(1,1,1)
-Confirm.BackgroundColor3 = Color3.fromRGB(180,50,50)
-Instance.new("UICorner", Confirm).CornerRadius = UDim.new(0,10)
 
 local Info = Instance.new("TextLabel", KeyFrame)
 Info.Size = UDim2.new(1,0,0,30)
-Info.Position = UDim2.fromOffset(0,170)
+Info.Position = UDim2.fromOffset(0,110)
 Info.Text = "Pegue a key no Discord"
 Info.Font = Enum.Font.Gotham
 Info.TextSize = 12
 Info.TextColor3 = Color3.fromRGB(200,200,200)
 Info.BackgroundTransparency = 1
 
+local Confirm = Instance.new("TextButton", KeyFrame)
+Confirm.Size = UDim2.fromOffset(260,36)
+Confirm.Position = UDim2.fromOffset(30,150)
+Confirm.Text = "CONFIRMAR"
+Confirm.BackgroundColor3 = Color3.fromRGB(180,50,50)
+Confirm.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", Confirm).CornerRadius = UDim.new(0,10)
+
+-- ===============================
+-- GUI PRINCIPAL
+-- ===============================
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.fromOffset(300,220)
+Main.Position = UDim2.fromScale(0.05,0.35)
+Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Main.Visible = false
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,12)
+RGBStroke(Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1,0,0,35)
+Title.Text = "PHXIT | PvP"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 14
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundTransparency = 1
+
+-- BOTÃO FECHAR
+local Close = Instance.new("TextButton", Main)
+Close.Size = UDim2.fromOffset(30,30)
+Close.Position = UDim2.fromOffset(260,5)
+Close.Text = "X"
+Close.BackgroundColor3 = Color3.fromRGB(150,50,50)
+Instance.new("UICorner", Close).CornerRadius = UDim.new(1,0)
+
+-- BOTÃO OCULTAR
+local Hide = Instance.new("TextButton", Main)
+Hide.Size = UDim2.fromOffset(30,30)
+Hide.Position = UDim2.fromOffset(225,5)
+Hide.Text = "-"
+Hide.BackgroundColor3 = Color3.fromRGB(60,60,60)
+Instance.new("UICorner", Hide).CornerRadius = UDim.new(1,0)
+
+-- QUADRADO PH
+local Mini = Instance.new("Frame", ScreenGui)
+Mini.Size = UDim2.fromOffset(60,60)
+Mini.Position = UDim2.fromScale(0.05,0.5)
+Mini.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Mini.Visible = false
+Mini.Active = true
+Mini.Draggable = true
+Instance.new("UICorner", Mini).CornerRadius = UDim.new(0,12)
+RGBStroke(Mini)
+
+local PH = Instance.new("TextButton", Mini)
+PH.Size = UDim2.new(1,0,1,0)
+PH.Text = "PH"
+PH.Font = Enum.Font.GothamBold
+PH.TextSize = 16
+PH.TextColor3 = Color3.new(1,1,1)
+PH.BackgroundTransparency = 1
+
+-- ===============================
+-- AÇÕES
+-- ===============================
 Confirm.MouseButton1Click:Connect(function()
 	if Box.Text == VALID_KEY then
 		ScriptLiberado = true
-		KeyGui:Destroy()
+		KeyFrame:Destroy()
 		Main.Visible = true
 	else
 		Confirm.Text = "KEY INVÁLIDA"
@@ -86,33 +154,19 @@ Confirm.MouseButton1Click:Connect(function()
 	end
 end)
 
-Main.Visible = false
+Close.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
 
-RunService.RenderStepped:Connect(function()
-	if not ScriptLiberado then return end
+Hide.MouseButton1Click:Connect(function()
+	Main.Visible = false
+	Mini.Visible = true
+end)
 
--- ===============================
--- GUI
--- ===============================
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PHXIT_GUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = lp:WaitForChild("PlayerGui")
-
-local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.fromOffset(300, 220)
-Main.Position = UDim2.fromScale(0.05, 0.35)
-Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
-Main.BorderSizePixel = 0
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0,12)
-
-local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1,0,0,40)
-Title.Text = "PHXIT | PvP"
-Title.TextColor3 = Color3.new(1,1,1)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 14
+PH.MouseButton1Click:Connect(function()
+	Mini.Visible = false
+	Main.Visible = true
+end)
 
 -- ===============================
 -- ESTADOS
