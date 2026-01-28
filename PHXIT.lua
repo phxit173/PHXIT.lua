@@ -101,6 +101,150 @@ local function StartPHXIT()
 end
 
 -- ===============================
+	-- SERVIÇOS
+	-- ===============================
+	local RunService = game:GetService("RunService")
+	local UIS = game:GetService("UserInputService")
+	local Camera = workspace.CurrentCamera
+
+	-- ===============================
+	-- ESTADOS
+	-- ===============================
+	local Aimbot = false
+	local AimLock = false
+	local ESP = false
+	local LockedTarget = nil
+	local FOV = 180
+	local Smoothness = 0.15
+
+	-- ===============================
+	-- FUNÇÃO WALL CHECK
+	-- ===============================
+	local function HasWall(origin, targetPos, targetChar)
+		local params = RaycastParams.new()
+		params.FilterDescendantsInstances = {lp.Character}
+		params.FilterType = Enum.RaycastFilterType.Blacklist
+
+		local result = workspace:Raycast(origin, targetPos - origin, params)
+		if result then
+			return not result.Instance:IsDescendantOf(targetChar)
+		end
+		return false
+	end
+
+	-- ===============================
+	-- PEGAR PLAYER MAIS PRÓXIMO
+	-- ===============================
+	local function GetClosestPlayer()
+		local closest, dist = nil, FOV
+
+		for _,plr in ipairs(Players:GetPlayers()) do
+			if plr ~= lp and plr.Character and plr.Character:FindFirstChild("Head") then
+				local head = plr.Character.Head
+				local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
+				if onScreen then
+					local mag = (Vector2.new(pos.X,pos.Y) -
+						Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+
+					if mag < dist and not HasWall(Camera.CFrame.Position, head.Position, plr.Character) then
+						dist = mag
+						closest = plr
+					end
+				end
+			end
+		end
+		return closest
+	end
+
+	-- ===============================
+	-- ESP VERMELHO
+	-- ===============================
+	local function ToggleESP(state)
+		for _,plr in ipairs(Players:GetPlayers()) do
+			if plr ~= lp and plr.Character then
+				if state then
+					if not plr.Character:FindFirstChild("PHXIT_ESP") then
+						local h = Instance.new("Highlight", plr.Character)
+						h.Name = "PHXIT_ESP"
+						h.FillColor = Color3.fromRGB(255,0,0)
+						h.OutlineColor = Color3.fromRGB(255,255,255)
+						h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+					end
+				else
+					if plr.Character:FindFirstChild("PHXIT_ESP") then
+						plr.Character.PHXIT_ESP:Destroy()
+					end
+				end
+			end
+		end
+	end
+
+	-- ===============================
+	-- BOTÕES
+	-- ===============================
+	local function CreateButton(text, yPos)
+		local b = Instance.new("TextButton", Main)
+		b.Size = UDim2.fromOffset(260,32)
+		b.Position = UDim2.fromOffset(20,yPos)
+		b.Text = text
+		b.Font = Enum.Font.GothamBold
+		b.TextSize = 13
+		b.TextColor3 = Color3.new(1,1,1)
+		b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+		Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+		return b
+	end
+
+	local AimbotBtn = CreateButton("AIMBOT: OFF", 80)
+	local AimLockBtn = CreateButton("AIMLOCK: OFF", 120)
+	local ESPBtn = CreateButton("ESP: OFF", 160)
+
+	AimbotBtn.MouseButton1Click:Connect(function()
+		Aimbot = not Aimbot
+		AimbotBtn.Text = Aimbot and "AIMBOT: ON" or "AIMBOT: OFF"
+	end)
+
+	AimLockBtn.MouseButton1Click:Connect(function()
+		AimLock = not AimLock
+		LockedTarget = nil
+		AimLockBtn.Text = AimLock and "AIMLOCK: ON" or "AIMLOCK: OFF"
+	end)
+
+	ESPBtn.MouseButton1Click:Connect(function()
+		ESP = not ESP
+		ToggleESP(ESP)
+		ESPBtn.Text = ESP and "ESP: ON" or "ESP: OFF"
+	end)
+
+	-- ===============================
+	-- LOOP PRINCIPAL
+	-- ===============================
+	RunService.RenderStepped:Connect(function()
+		if Aimbot then
+			local target = GetClosestPlayer()
+			if target and target.Character then
+				local head = target.Character.Head
+				Camera.CFrame = Camera.CFrame:Lerp(
+					CFrame.new(Camera.CFrame.Position, head.Position),
+					Smoothness
+				)
+			end
+		end
+
+		if AimLock then
+			if not LockedTarget then
+				LockedTarget = GetClosestPlayer()
+			end
+			if LockedTarget and LockedTarget.Character then
+				local head = LockedTarget.Character.Head
+				if not HasWall(Camera.CFrame.Position, head.Position, LockedTarget.Character) then
+					Camera.CFrame = CFrame.new(Camera.CFrame.Position, head.Position)
+				end
+			end
+		end
+	end)
+
+-- ===============================
 -- CONFIRMAR KEY
 -- ===============================
 Confirm.MouseButton1Click:Connect(function()
