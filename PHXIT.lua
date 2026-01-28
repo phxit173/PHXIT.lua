@@ -176,7 +176,7 @@ local Aimbot = false
 local AimLock = false
 local ESP = false
 local FOVInput = 180
-local Smoothness = 0.12
+local Smoothness = 0.15 -- mais suave
 local LockedTarget
 local ESPs = {}
 
@@ -328,7 +328,7 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 
-	-- AIMLOCK TRAVADO
+	-- AIMLOCK
 	if AimLock then
 		if not LockedTarget or not IsValidEnemy(LockedTarget) or not LockedTarget.Character or not LockedTarget.Character:FindFirstChild("Head") then
 			LockedTarget = GetClosestPlayer()
